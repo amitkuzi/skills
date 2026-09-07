@@ -1,0 +1,6 @@
+interface:
+  display_name: "Adversary Review"
+  short_description: "Independent adversarial QA and repair loop"
+  default_prompt: "Use $adversary to adversarially review and improve this completed deliverable."
+policy:
+  allow_implicit_invocation: true
