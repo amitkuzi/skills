@@ -14,6 +14,7 @@ Each skill is a self-contained folder with a `SKILL.md`, its own `README.md`, an
 | [`csharp-standards`](./csharp-standards) | Team C#/.NET coding standards — Manager/Engine/Accessor layering, immutable DTOs, async/`CancellationToken` rules, structured logging, test-plan-first workflow. | MIT © Amit Kuzi |
 | [`grill-me`](./grill-me) | Relentless, structured interview that stress-tests a plan or decision before you act on it. **Sourced from [mattpocock/skills](https://github.com/mattpocock/skills)**, used unmodified. | MIT © Matt Pocock |
 | [`report`](./report) | Produces a structured, sourced Hebrew report (status / research / decision / post-mortem / periodic) from connected tools and the web. | MIT © Amit Kuzi |
+| [`stage-gate`](./stage-gate) | Mandatory end-of-stage checkpoint for multi-stage dev missions — adversary + usability review, score-and-fix loop to >90, iteration log, live demo, hard stop for human approval before the next stage. | MIT © Amit Kuzi |
 
 ## Install
 
@@ -46,6 +47,7 @@ skills/
   csharp-standards/     SKILL.md, README.md, LICENSE, references/*.md
   grill-me/              SKILL.md, README.md, LICENSE
   report/                SKILL.md, README.md, LICENSE
+  stage-gate/            SKILL.md, README.md, LICENSE
 ```
 
 ## License
