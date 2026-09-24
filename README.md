@@ -14,6 +14,7 @@ Each skill is a self-contained folder with a `SKILL.md`, its own `README.md`, an
 | [`csharp-standards`](./csharp-standards) | Team C#/.NET coding standards — Manager/Engine/Accessor layering, immutable DTOs, async/`CancellationToken` rules, structured logging, test-plan-first workflow. | MIT © Amit Kuzi |
 | [`grill-me`](./grill-me) | Relentless, structured interview that stress-tests a plan or decision before you act on it. **Sourced from [mattpocock/skills](https://github.com/mattpocock/skills)**, used unmodified. | MIT © Matt Pocock |
 | [`report`](./report) | Produces a structured, sourced Hebrew report (status / research / decision / post-mortem / periodic) from connected tools and the web. | MIT © Amit Kuzi |
+| [`slant3d`](./slant3d) | Audits and adapts CAD/mesh models for repeatable production FDM, with explicit approval gates, assembly checks, orientation proposals, and local FreeCAD/Blender analysis. | MIT © Amit Kuzi |
 | [`stage-gate`](./stage-gate) | Mandatory end-of-stage checkpoint for multi-stage dev missions — adversary + usability review, score-and-fix loop to >90, iteration log, live demo, hard stop for human approval before the next stage. | MIT © Amit Kuzi |
 
 ## Install
@@ -39,6 +40,10 @@ with open("<skill-name>.skill", "rb") as f:
 
 See each skill's own `README.md` for a usage example and any skill-specific notes.
 
+`slant3d` generates separate Claude Code and Codex packages. Follow its
+[platform-specific installation instructions](./slant3d/README.md#install) instead of copying the
+source folder directly.
+
 ## Structure
 
 ```
@@ -47,6 +52,7 @@ skills/
   csharp-standards/     SKILL.md, README.md, LICENSE, references/*.md
   grill-me/              SKILL.md, README.md, LICENSE
   report/                SKILL.md, README.md, LICENSE
+  slant3d/               SKILL.md, README.md, LICENSE, agents/, docs/, references/, scripts/
   stage-gate/            SKILL.md, README.md, LICENSE
 ```
 

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Slant 3D Production Design"
+  short_description: "Prepare CAD for production FDM printing"
+  default_prompt: "Use $slant3d to review this model and propose production-ready FDM changes before editing it."
+
+policy:
+  allow_implicit_invocation: false
