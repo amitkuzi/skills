@@ -13,6 +13,7 @@ Detailed evidence:
 - `../research/claims/thematic-synthesis-full-corpus.md`
 - `../research/claims/best-practice-traceability-matrix.md`
 - `../research/independent-validation-2026-09-24.md`
+- `../research/support-fins-independent-implementation-2026-09-28.md`
 
 The traceability matrix maps every substantive section below to exact official-video timestamps,
 independent evidence where available, conflicts, and the evidence needed to move from proposal to
@@ -106,6 +107,61 @@ verified result.
   trials, not portable CAD rules. Require stability, time, quality, and repeatability evidence before
   relying on them to replace support or geometric redesign.
 - Slicer support inspection is optional evidence; the design remains slicer-agnostic.
+
+### Designed-in breakaway support fins
+
+A fin is a modeled, slicer-independent alternative to generated support: because it lives in the
+mesh, it prints correctly on any slicer/printer/material, unlike gcode-level support that only ever
+covers one machine. It is still support and must be reported as such (removal, witness marks,
+verification), never as "support-free." See
+`../research/support-fins-independent-implementation-2026-09-28.md` for the full sourcing, including
+where the geometry below is corroborated versus still a channel-only claim.
+
+**When a fin is a candidate, in order:** first re-check whether reorientation, feature reshaping, or
+splitting the unsupported span removes the need at all — a fin is the last resort in the existing
+overhang-mitigation order above, not a default. Consider one when a face is steeper than roughly 45°
+from vertical (a conventional default threshold, not a universal material constant — verify against
+the intended process), the unsupported region is large enough to matter rather than a sliver, and the
+standoff wall would have at least a few millimeters of height to work with. A feature shorter than
+roughly 4 mm of wall height cannot carry a real fin; use orientation change or ordinary slicer support
+there instead.
+
+**Geometry — source hypothesis unless noted, size every value from the intended layer height, nozzle
+diameter, and material rather than copying it verbatim:**
+
+- The fin body is a thin standoff wall offset from the part face by a small clearance (on the order of
+  the process's normal support gap), plus horizontal tines that fuse the wall to the part. A wall with
+  no tines only resists load in one direction; the part can still fall away sideways. **Both the wall
+  and the tines are required, not a wall alone with tines as a refinement.**
+- **Corroborated practice:** tines must be horizontal, in the plane of a layer — the nozzle then lays
+  fin, tine, and part as one continuous bead with no retraction. A tine built as a vertical post is
+  grown one dot per layer, may not fuse to the part at all, and is fragile. Independent engineering
+  reasoning and channel demonstration agree on this point.
+- Tines are roughly one layer line tall (must match the intended layer height exactly or the slicer
+  cuts it into partial layers), one to two nozzle widths wide, and concentrated near the base (roughly
+  7–8, tapering to fewer higher up) — the part is least stable early in the print.
+- Give the fin a broad, peelable base or a dedicated bed pad rather than a bulky support body; round
+  the fin's top rather than leaving a sharp tip, which is a retraction/defect point.
+- Place fins on an edge or corner, never the middle of a visible face, to keep the tine witness marks
+  hidden. A single long or tall part needs fins on two opposite sides (or see sway braces below);
+  one-sided support lets the part twist or drift away from it.
+- Do not auto-generate or auto-place fins from geometry alone. An independent implementation measured
+  that only roughly two-thirds of contact-line locations on real, unauthored geometry have a face
+  suitable for a tine at all, and an unconstrained solver can produce a geometrically "optimal" but
+  unprintable placement (a tall part balanced on a needle with oversized fins). Propose each fin's
+  location, attaching face, and the overhang/height reasoning behind it, and obtain approval the same
+  way as any other bed-contact or support change.
+- Do not add a bottom chamfer to the user's part to solve a diagonal part's bed-contact problem as
+  part of this technique; that modifies the source geometry rather than only adding a support feature
+  and needs its own explicit change-plan item and approval. A separate breakaway pad sized to the
+  part's actual first-layer contact addresses the same instability without touching the part.
+
+**Sway braces — a different failure mode, do not conflate with overhang fins:** a tall, slender part
+can drift, sag, or wobble purely from nozzle drag and layer-by-layer cooling shrinkage, with no
+overhanging face at all. The candidate fix is a vertical rib standing edge-on (its stiff bending
+direction) against an upright face, tied to the part by evenly spaced one-layer horizontal tines
+running its full height. This is validated by only two dated physical prints in one material; treat
+it as a source hypothesis requiring its own verification print before relying on it.
 
 ## Holes, pins, threads, and hardware
 

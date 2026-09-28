@@ -295,3 +295,10 @@ The following batch-01 themes are retained as sourced design hypotheses, not gen
 
 Each should be evaluated against geometry, actual toolpath evidence when available, and a targeted
 physical test before it becomes an approved model change.
+
+**2026-09-28 addendum:** see `support-fins-independent-implementation-2026-09-28.md` for a third-party
+open-source implementation and dated physical prints that narrow, but do not remove, the "designed
+support fins/tines" and "exact tine sizes" entries above — it corroborates the horizontal-tine
+requirement independently and supplies named print results for specific geometries, while its own
+test data confirms the technique cannot be applied to most contact-line locations without human
+placement judgment.
