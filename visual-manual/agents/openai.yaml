@@ -1,6 +1,6 @@
 interface:
   display_name: "Visual Manual"
-  short_description: "Bilingual visual assembly and installation manuals"
-  default_prompt: "Use $visual-manual to create a printable visual manual in Hebrew and English for this assembly or installation."
+  short_description: "Branded bilingual visual manuals in HTML and PDF"
+  default_prompt: "Use $visual-manual to create a branded HTML and PDF visual manual with Hebrew on the right and English on the left for this assembly or installation."
 policy:
   allow_implicit_invocation: true

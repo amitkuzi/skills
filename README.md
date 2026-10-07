@@ -16,7 +16,7 @@ Each skill is a self-contained folder with a `SKILL.md`, its own `README.md`, an
 | [`report`](./report) | Produces a structured, sourced Hebrew report (status / research / decision / post-mortem / periodic) from connected tools and the web. | MIT © Amit Kuzi |
 | [`slant3d`](./slant3d) | Audits and adapts CAD/mesh models for repeatable production FDM, with explicit approval gates, assembly checks, orientation proposals, and local FreeCAD/Blender analysis. | MIT © Amit Kuzi |
 | [`stage-gate`](./stage-gate) | Mandatory end-of-stage checkpoint for multi-stage dev missions — adversary + usability review, score-and-fix loop to >90, iteration log, live demo, hard stop for human approval before the next stage. | MIT © Amit Kuzi |
-| [`visual-manual`](./visual-manual) | LEGO/IKEA-style visual assembly and installation manuals, in Hebrew and English by default, with printable HTML and inline SVG diagrams. | MIT © Amit Kuzi |
+| [`visual-manual`](./visual-manual) | Branded LEGO/IKEA-style assembly and installation manuals: Hebrew right, English left, HTML and PDF by default, with inline SVG diagrams. | MIT © Amit Kuzi |
 
 ## Install
 

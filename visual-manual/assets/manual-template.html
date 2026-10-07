@@ -6,34 +6,51 @@
 <title>Visual manual layout demonstration / דוגמה לתבנית מדריך חזותי</title>
 <style>
 * { box-sizing: border-box; }
-body { margin: 0; background: #eee; color: #17212b; font: 17px/1.5 Arial, sans-serif; }
-main { max-width: 980px; margin: auto; padding: 24px; background: white; }
+/* Palette and mark provenance: D:\Development\amitkuzi-brandkit, read 2026-10-07.
+   Font roles come from fonts/fonts.css. Embed its actual WOFF2 data for generated deliverables;
+   this distributable layout has no bundled fonts and displays named fallbacks. */
+:root { --ground:#F4EFE7; --raised:#FFFFFF; --base:#221E1A; --fg:#221E1A; --fg2:#6E6357; --fgOnBase:#B5A797; --ember:#E4632D; --emberInk:#B8431A; --brass:#C9A227; --onEmber:#1A1210; }
+body { margin: 0; background: var(--ground); color: var(--fg); font: 17px/1.55 "Public Sans", Arial, sans-serif; }
+main { max-width: 1120px; margin: auto; padding: 28px; }
+[lang="he"] { font-family: "Rubik", Arial, sans-serif; }
+[lang="en"] h1, [lang="en"] h2, h1[lang="en"], h2[lang="en"] { font-family: "Archivo", Arial, sans-serif; }
 h1, h2, p { margin: 0 0 12px; }
 header, section { margin-bottom: 22px; }
-.notice { border: 2px solid #17212b; padding: 12px; }
-.labels { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+header { background: var(--base); color: var(--raised); border-radius: 24px; padding: 30px; }
+header .part { fill: var(--base); stroke: var(--raised); }
+header svg text { fill: var(--raised); }
+.brand-mark { width: 64px; height: 56px; margin: 0 0 20px auto; }
+.notice { background: rgba(201,162,39,.19); border: 1px solid var(--brass); border-radius: 18px; color: var(--fg); padding: 18px; }
+header .notice { background: var(--ground); margin-top: 18px; }
+.labels { direction: ltr; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-areas: "en he"; gap: 24px; }
+.labels > [lang="en"] { grid-area: en; min-width: 0; }
+.labels > [lang="he"] { grid-area: he; min-width: 0; }
 [lang="he"] { text-align: right; }
-.panel { border: 2px solid #17212b; border-radius: 8px; padding: 18px; break-inside: avoid; page-break-inside: avoid; }
-.step { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #17212b; color: white; font-weight: bold; font-size: 26px; }
+.prerequisites { border: 1px solid var(--fg2); background: var(--raised); border-radius: 18px; padding: 22px; }
+.panel { border: 1px solid var(--fg2); background: var(--raised); border-radius: 18px; padding: 22px; break-inside: avoid; page-break-inside: avoid; }
+.step { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--ember); color: var(--onEmber); font-weight: bold; font-size: 26px; margin-bottom: 14px; }
 svg { display: block; width: 100%; height: auto; max-height: 340px; margin: 12px 0; }
-.part { fill: #fafafa; stroke: #17212b; stroke-width: 3; }
-.motion { fill: none; stroke: #17212b; stroke-width: 3; }
-.guide { fill: none; stroke: #17212b; stroke-width: 2; stroke-dasharray: 5 5; }
-svg text { font: 20px Arial, sans-serif; fill: #17212b; }
+.part { fill: var(--ground); stroke: var(--fg); stroke-width: 3; }
+.motion { fill: none; stroke: var(--fg); stroke-width: 3; }
+.guide { fill: none; stroke: var(--fg2); stroke-width: 2; stroke-dasharray: 5 5; }
+svg text { font: 20px "Public Sans", Arial, sans-serif; fill: var(--fg); }
 table { width: 100%; border-collapse: collapse; }
-th, td { border: 1px solid #17212b; padding: 10px; }
+th, td { border: 1px solid var(--fg2); padding: 10px; }
 pre, code, .id { direction: ltr; unicode-bidi: isolate; }
-pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; background: #f1f1f1; }
-footer { border-top: 1px solid #17212b; padding-top: 12px; font-size: 14px; }
-@media(max-width: 560px) { main { padding: 12px; } .labels { grid-template-columns: 1fr; } .panel { padding: 12px; } }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; background: var(--ground); }
+footer { border-top: 1px solid var(--fg2); color: var(--fg2); padding-top: 12px; font-size: 14px; }
+@media(max-width: 640px) { main { padding: 12px; } header { padding: 20px; } .labels { grid-template-columns: minmax(0,1fr); grid-template-areas: "he" "en"; } .panel { padding: 16px; } }
 @page { size: A4; margin: 14mm; }
-@media print { body { background: white; font-size: 11pt; } main { padding: 0; max-width: none; } .panel { border-radius: 0; } svg { max-height: 65mm; } a { color: inherit; } }
+@media print { * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } body { background: var(--raised); font-size: 10pt; } main { padding: 0; max-width: none; } header { padding: 20px; border-radius: 18px; } .labels { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-areas: "en he"; gap: 18px; } .panel, .prerequisites { padding: 16px; } svg { max-height: 55mm; } a { color: inherit; } }
 </style>
 </head>
 <body>
 <main>
 <!-- Replace all demonstration content and diagrams with the requested subject. -->
 <header>
+<svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 42" role="img" aria-label="Amit Kuzi" dir="ltr">
+<title>Amit Kuzi</title><rect x="2" y="30" width="44" height="6" rx="2" fill="#E4632D"/><rect x="6" y="22" width="36" height="6" rx="2" fill="#E4632D" opacity=".8"/><rect x="10" y="14" width="28" height="6" rx="2" fill="#C9A227"/><rect x="16" y="6" width="16" height="6" rx="2" fill="#C9A227" opacity=".65"/>
+</svg>
 <div class="labels">
 <div lang="he" dir="rtl"><h1>דוגמה לתבנית מדריך חזותי</h1><p>חיבור פין — המחשה בלבד</p></div>
 <div lang="en" dir="ltr"><h1>Visual manual layout demonstration</h1><p>Pin connection — illustration only</p></div>
@@ -49,12 +66,12 @@ footer { border-top: 1px solid #17212b; padding-top: 12px; font-size: 14px; }
 <text x="400" y="92">P1</text><text x="307" y="42">P2</text>
 </svg>
 </header>
-<section>
+<section class="prerequisites">
 <div class="labels"><h2 lang="he" dir="rtl">חלקים וכלים</h2><h2 lang="en" dir="ltr">Parts and tools</h2></div>
 <table>
-<thead><tr><th>ID</th><th lang="he" dir="rtl">פריט</th><th lang="en" dir="ltr">Item</th><th>כמות / Qty</th></tr></thead>
-<tbody><tr><td class="id">P1</td><td lang="he" dir="rtl">גוש עם חור תואם</td><td lang="en" dir="ltr">Block with matching hole</td><td>1</td></tr>
-<tr><td class="id">P2</td><td lang="he" dir="rtl">פין תואם</td><td lang="en" dir="ltr">Matching pin</td><td>1</td></tr></tbody>
+<thead><tr><th>ID</th><th lang="en" dir="ltr">Item</th><th lang="he" dir="rtl">פריט</th><th>Qty / כמות</th></tr></thead>
+<tbody><tr><td class="id">P1</td><td lang="en" dir="ltr">Block with matching hole</td><td lang="he" dir="rtl">גוש עם חור תואם</td><td>1</td></tr>
+<tr><td class="id">P2</td><td lang="en" dir="ltr">Matching pin</td><td lang="he" dir="rtl">פין תואם</td><td>1</td></tr></tbody>
 </table>
 <div class="labels"><p lang="he" dir="rtl">כלים בדוגמה: ללא. המידות וההתאמה לא אומתו.</p><p lang="en" dir="ltr">Example tools: none. Dimensions and fit are unverified.</p></div>
 </section>
@@ -77,7 +94,7 @@ footer { border-top: 1px solid #17212b; padding-top: 12px; font-size: 14px; }
 <svg viewBox="0 0 600 210" role="img" aria-labelledby="step2-title step2-desc" dir="ltr">
 <title id="step2-title">Insertion arrow / חץ הכנסה</title>
 <desc id="step2-desc">A downward arrow shows the pin moving into the hole. חץ כלפי מטה מראה את הכנסת הפין לחור.</desc>
-<defs><marker id="arrow-step2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#17212b"/></marker></defs>
+<defs><marker id="arrow-step2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#221E1A"/></marker></defs>
 <rect class="part" x="150" y="145" width="240" height="50"/><rect class="part" x="247" y="40" width="46" height="60"/>
 <path class="motion" d="M270 108V140" marker-end="url(#arrow-step2)"/><text x="307" y="70">P2</text><text x="405" y="175">P1</text>
 </svg>
@@ -95,8 +112,8 @@ footer { border-top: 1px solid #17212b; padding-top: 12px; font-size: 14px; }
 <div class="labels"><p lang="he" dir="rtl">בדקו את מיקום <bdi>P2</bdi> לפי עומק ההכנסה המוגדר במפרט.</p><p lang="en" dir="ltr">Check P2's position against the insertion depth specified by the product.</p></div>
 </section>
 <footer class="labels">
-<p lang="he" dir="rtl">מקור: איור תבנית מקורי, ללא מפרט יצרן. יש להחליף במקורות ובגרסה המתאימים. אין שיוך ל־LEGO או IKEA.</p>
-<p lang="en" dir="ltr">Source: original template illustration, no manufacturer specification. Replace with the relevant sources and version. No affiliation with LEGO or IKEA.</p>
+<p lang="he" dir="rtl">מקור: איור תבנית מקורי, ללא מפרט יצרן. צבעים וסמל: <bdi>amitkuzi-brandkit</bdi>, נקראו ב־<bdi>2026-10-07</bdi>. בתבנית זו הגופנים הם גופני גיבוי; במדריך הסופי יש להטמיע את קובצי הגופן בפועל. יש להחליף במקורות ובגרסה המתאימים. אין שיוך ל־LEGO או IKEA.</p>
+<p lang="en" dir="ltr">Source: original template illustration, no manufacturer specification. Palette and mark: amitkuzi-brandkit, read 2026-10-07. This template uses font fallbacks; embed the actual font files in the finished manual. Replace with the relevant sources and version. No affiliation with LEGO or IKEA.</p>
 </footer>
 </main>
 </body>
