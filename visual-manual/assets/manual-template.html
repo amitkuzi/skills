@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual manual layout demonstration / דוגמה לתבנית מדריך חזותי</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #eee; color: #17212b; font: 17px/1.5 Arial, sans-serif; }
+main { max-width: 980px; margin: auto; padding: 24px; background: white; }
+h1, h2, p { margin: 0 0 12px; }
+header, section { margin-bottom: 22px; }
+.notice { border: 2px solid #17212b; padding: 12px; }
+.labels { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+[lang="he"] { text-align: right; }
+.panel { border: 2px solid #17212b; border-radius: 8px; padding: 18px; break-inside: avoid; page-break-inside: avoid; }
+.step { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #17212b; color: white; font-weight: bold; font-size: 26px; }
+svg { display: block; width: 100%; height: auto; max-height: 340px; margin: 12px 0; }
+.part { fill: #fafafa; stroke: #17212b; stroke-width: 3; }
+.motion { fill: none; stroke: #17212b; stroke-width: 3; }
+.guide { fill: none; stroke: #17212b; stroke-width: 2; stroke-dasharray: 5 5; }
+svg text { font: 20px Arial, sans-serif; fill: #17212b; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #17212b; padding: 10px; }
+pre, code, .id { direction: ltr; unicode-bidi: isolate; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; background: #f1f1f1; }
+footer { border-top: 1px solid #17212b; padding-top: 12px; font-size: 14px; }
+@media(max-width: 560px) { main { padding: 12px; } .labels { grid-template-columns: 1fr; } .panel { padding: 12px; } }
+@page { size: A4; margin: 14mm; }
+@media print { body { background: white; font-size: 11pt; } main { padding: 0; max-width: none; } .panel { border-radius: 0; } svg { max-height: 65mm; } a { color: inherit; } }
+</style>
+</head>
+<body>
+<main>
+<!-- Replace all demonstration content and diagrams with the requested subject. -->
+<header>
+<div class="labels">
+<div lang="he" dir="rtl"><h1>דוגמה לתבנית מדריך חזותי</h1><p>חיבור פין — המחשה בלבד</p></div>
+<div lang="en" dir="ltr"><h1>Visual manual layout demonstration</h1><p>Pin connection — illustration only</p></div>
+</div>
+<div class="notice labels">
+<p lang="he" dir="rtl">⚠ זו דוגמה לתבנית, לא הוראות הרכבה מאומתות. יש להחליף את התוכן והאיורים לפי המוצר והמקורות בפועל.</p>
+<p lang="en" dir="ltr">⚠ This is a layout example, not verified assembly instructions. Replace its content and diagrams using the actual product and sources.</p>
+</div>
+<svg viewBox="0 0 600 130" role="img" aria-labelledby="cover-title cover-desc" dir="ltr">
+<title id="cover-title">Illustrated finished state / המחשת מצב סופי</title>
+<desc id="cover-desc">A pin seated in a block. פין מונח בתוך גוש.</desc>
+<rect class="part" x="150" y="55" width="240" height="60"/><rect class="part" x="247" y="20" width="46" height="55"/>
+<text x="400" y="92">P1</text><text x="307" y="42">P2</text>
+</svg>
+</header>
+<section>
+<div class="labels"><h2 lang="he" dir="rtl">חלקים וכלים</h2><h2 lang="en" dir="ltr">Parts and tools</h2></div>
+<table>
+<thead><tr><th>ID</th><th lang="he" dir="rtl">פריט</th><th lang="en" dir="ltr">Item</th><th>כמות / Qty</th></tr></thead>
+<tbody><tr><td class="id">P1</td><td lang="he" dir="rtl">גוש עם חור תואם</td><td lang="en" dir="ltr">Block with matching hole</td><td>1</td></tr>
+<tr><td class="id">P2</td><td lang="he" dir="rtl">פין תואם</td><td lang="en" dir="ltr">Matching pin</td><td>1</td></tr></tbody>
+</table>
+<div class="labels"><p lang="he" dir="rtl">כלים בדוגמה: ללא. המידות וההתאמה לא אומתו.</p><p lang="en" dir="ltr">Example tools: none. Dimensions and fit are unverified.</p></div>
+</section>
+<section class="panel">
+<span class="step">1</span>
+<div class="labels"><h2 lang="he" dir="rtl">יישור הפין</h2><h2 lang="en" dir="ltr">Align the pin</h2></div>
+<svg viewBox="0 0 600 200" role="img" aria-labelledby="step1-title step1-desc" dir="ltr">
+<title id="step1-title">Align P2 above P1 / יישור P2 מעל P1</title>
+<desc id="step1-desc">The pin and hole share a dashed vertical alignment line. קו אנכי מקווקו מראה את יישור הפין מול החור.</desc>
+<rect class="part" x="150" y="140" width="240" height="50"/><ellipse class="part" cx="270" cy="140" rx="23" ry="7"/>
+<rect class="part" x="247" y="20" width="46" height="60"/><path class="guide" d="M270 85V130"/>
+<text x="307" y="55">P2 ×1</text><text x="405" y="174">P1 ×1</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">ישרו את <bdi>P2</bdi> מעל החור ב־<bdi>P1</bdi>.</p><p lang="en" dir="ltr">Align P2 above the hole in P1.</p></div>
+<div class="labels"><p lang="he" dir="rtl">בדיקה: ציר הפין מול מרכז החור.</p><p lang="en" dir="ltr">Check: the pin axis aligns with the hole center.</p></div>
+</section>
+<section class="panel">
+<span class="step">2</span>
+<div class="labels"><h2 lang="he" dir="rtl">הכנסת הפין</h2><h2 lang="en" dir="ltr">Insert the pin</h2></div>
+<svg viewBox="0 0 600 210" role="img" aria-labelledby="step2-title step2-desc" dir="ltr">
+<title id="step2-title">Insertion arrow / חץ הכנסה</title>
+<desc id="step2-desc">A downward arrow shows the pin moving into the hole. חץ כלפי מטה מראה את הכנסת הפין לחור.</desc>
+<defs><marker id="arrow-step2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L8 3L0 6Z" fill="#17212b"/></marker></defs>
+<rect class="part" x="150" y="145" width="240" height="50"/><rect class="part" x="247" y="40" width="46" height="60"/>
+<path class="motion" d="M270 108V140" marker-end="url(#arrow-step2)"/><text x="307" y="70">P2</text><text x="405" y="175">P1</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">הכניסו את <bdi>P2</bdi> לחור שב־<bdi>P1</bdi> בהתאם למפרט המוצר.</p><p lang="en" dir="ltr">Insert P2 into P1's hole according to the product specification.</p></div>
+<div class="notice labels"><p lang="he" dir="rtl">⚠ יש לאמת התאמה ועומק לפי המקור לפני ביצוע. אין מידות מאומתות בדוגמה.</p><p lang="en" dir="ltr">⚠ Verify fit and depth against the source before proceeding. This example has no verified dimensions.</p></div>
+</section>
+<section class="panel">
+<span class="step">3</span>
+<div class="labels"><h2 lang="he" dir="rtl">בדיקת התוצאה</h2><h2 lang="en" dir="ltr">Verify the result</h2></div>
+<svg viewBox="0 0 600 130" role="img" aria-labelledby="step3-title step3-desc" dir="ltr">
+<title id="step3-title">Result checkpoint / בדיקת התוצאה</title>
+<desc id="step3-desc">The pin is seated vertically in the block. הפין מונח אנכית בתוך הגוש.</desc>
+<rect class="part" x="150" y="55" width="240" height="60"/><rect class="part" x="247" y="20" width="46" height="55"/><text x="400" y="92">P1</text><text x="307" y="42">P2</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">בדקו את מיקום <bdi>P2</bdi> לפי עומק ההכנסה המוגדר במפרט.</p><p lang="en" dir="ltr">Check P2's position against the insertion depth specified by the product.</p></div>
+</section>
+<footer class="labels">
+<p lang="he" dir="rtl">מקור: איור תבנית מקורי, ללא מפרט יצרן. יש להחליף במקורות ובגרסה המתאימים. אין שיוך ל־LEGO או IKEA.</p>
+<p lang="en" dir="ltr">Source: original template illustration, no manufacturer specification. Replace with the relevant sources and version. No affiliation with LEGO or IKEA.</p>
+</footer>
+</main>
+</body>
+</html>
