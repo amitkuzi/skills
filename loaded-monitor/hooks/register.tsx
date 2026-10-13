@@ -7,17 +7,20 @@ import own from '../own'
 const PANE = 'loaded-monitor'
 const isOpen = atom({ plugin: 'loaded-monitor', key: 'isOpen' } as const, false)
 const paneOpen = atom({ plugin: 'loaded-monitor', key: 'paneOpen' } as const, false)
+const tab = atom({ plugin: 'loaded-monitor', key: 'tab' } as const, 'plugins')
+const confirm = atom({ plugin: 'loaded-monitor', key: 'confirm' } as const, null)
 const snap = atom({ plugin: 'loaded-monitor', key: 'snap' } as const, null)
 
 const uniq = (xs: string[]) => [...new Set(xs)].sort()
 
 // Origin: mine = listed in own.json (by name or marketplace); builtin = Claude Code core; else installed.
 const originOf = (name: string, builtin = false): Origin => {
-  const [base, market] = name.split('@')
+  const [base = '', market] = name.split('@')
   if (own.names.includes(base) || (market && own.marketplaces.includes(market))) return 'mine'
   return builtin ? 'builtin' : 'installed'
 }
-const items = (xs: string[], builtin = false): Item[] => uniq(xs).map(name => ({ name, origin: originOf(name, builtin) }))
+const items = (xs: string[], builtin = false, off: string[] = []): Item[] =>
+  uniq(xs).map(name => ({ name, origin: originOf(name, builtin), status: off.includes(name) ? 'disabled' : 'loaded' }))
 
 async function collect($: any): Promise<Snapshot> {
     const tools = await $.tool.list()
@@ -33,13 +36,13 @@ async function collect($: any): Promise<Snapshot> {
     }
     return {
       plugins: items([
-        ...Object.keys(enabled).filter(k => enabled[k]),
+        ...Object.keys(enabled),
         ...cmds.flatMap((c: any) => (c.plugin ? [c.plugin] : [])),
-      ]),
+      ], false, Object.keys(enabled).filter(k => !enabled[k])),
       skills: items(cmds.filter((c: any) => c.source === 'plugin' || c.source === 'user').map((c: any) => c.name)),
       commands: items(cmds.filter((c: any) => c.source === 'builtin').map((c: any) => c.name), true),
       tools: items(tools.filter((t: any) => !t.mcp).map((t: any) => t.name), true),
-      mcp: [...byServer].map(([server, n]) => ({ server, tools: n, origin: originOf(server) })),
+      mcp: [...byServer].map(([server, n]) => ({ server, tools: n, origin: originOf(server), status: 'running' })),
       agents: items(agents.map((a: any) => a.id)),
     }
 }
@@ -57,32 +60,73 @@ async function close($: any) {
   }
 }
 
-function body($: any, e: any, s: Snapshot) {
-    const { Box, Text, Button } = $.ui.resolve(e)
-    const mark = (o: Origin) => (o === 'mine' ? '●' : o === 'installed' ? '○' : '·')
-    const color = (o: Origin) => (o === 'mine' ? 'green' : undefined)
-    const line = (label: string, xs: { name: string; origin: Origin }[]) => (
-      <Text>
-        <Text bold>{label} ({xs.length}): </Text>
-        {xs.length ? xs.map(x => (
-          <Text key={x.name} color={color(x.origin)} dimColor={x.origin !== 'mine'}>{mark(x.origin)}{x.name}{' '}</Text>
-        )) : <Text dimColor>-</Text>}
-      </Text>
-    )
-    return (
-      <Box flexDirection="column">
-        {line('Plugins/Mods', s.plugins)}
-        {line('Skills & user commands', s.skills)}
-        {line('Tools', s.tools)}
-        {line('MCP servers', s.mcp.map(m => ({ name: `${m.server} (${m.tools})`, origin: m.origin })))}
-        {line('Agents', s.agents)}
-        <Text dimColor>● mine   ○ installed   · built-in</Text>
-        <Box>
-          <Button key="refresh" label="Refresh" onPress={() => refresh($)} hotkey="r" />
-          <Button key="close" label="Close" onPress={() => close($)} hotkey="x" />
-        </Box>
+const TABS = ['plugins', 'skills', 'tools', 'mcp', 'agents'] as const
+const TITLE: Record<string, string> = { plugins: 'Plugins', skills: 'Skills', tools: 'Tools', mcp: 'MCP', agents: 'Agents' }
+
+const rowsOf = (s: Snapshot, t: string): Item[] =>
+  t === 'mcp' ? s.mcp.map(m => ({ name: m.server, origin: m.origin, status: m.status, note: `${m.tools} tools` })) : (s[t as 'plugins'] as Item[])
+
+async function act($: any, it: Item, kind: string, choice: string) {
+  if (choice === 'info') {
+    $.ui.toast(`${it.name}: ${it.status}, ${it.origin === 'mine' ? 'made by you' : it.origin}${it.note ? ', ' + it.note : ''}`)
+  } else if (choice === 'settings') {
+    $.ui.toast(kind === 'plugins' ? `${it.name}: edit enabledPlugins in ~/.claude/settings.json` : `${it.name}: no settings for built-in items`)
+  } else if (choice === 'remove') {
+    await update($, confirm, () => it.name)
+  }
+}
+
+async function uninstall($: any, name: string) {
+  await update($, confirm, () => null)
+  const r = await $.process.run(['claude', 'plugin', 'uninstall', name], { timeoutMs: 60000 })
+  $.ui.toast(r.exitCode === 0 ? `${name} removed. Restart to apply.` : `Remove failed: ${(r.stderr || r.stdout).slice(0, 120)}`)
+  await refresh($)
+}
+
+function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
+  const { Box, Text, Button, Select } = $.ui.resolve(e)
+  const dot = (st: string) => (st === 'running' ? ['●', 'green'] : st === 'disabled' ? ['○', undefined] : st === 'error' ? ['●', 'red'] : ['●', 'yellow'])
+  const rows = rowsOf(s, t)
+  const n = (k: string) => rowsOf(s, k).length
+  return (
+    <Box flexDirection="column">
+      <Box>
+        <Text bold>✻ Loaded  </Text>
+        <Button key="refresh" label="↻" onPress={() => refresh($)} hotkey="r" />
+        <Button key="close" label="✕" onPress={() => close($)} hotkey="x" />
       </Box>
-    )
+      <Box>
+        {TABS.map(k => (
+          <Button key={`tab-${k}`} label={`${k === t ? '▸' : ' '}${TITLE[k]} ${n(k)}`} onPress={() => update($, tab, () => k)} />
+        ))}
+      </Box>
+      {rows.length === 0 && <Text dimColor>nothing loaded</Text>}
+      {rows.map(it => {
+        const [mark, color] = dot(it.status)
+        const menu = t === 'plugins'
+          ? [{ value: 'info', label: 'Info' }, { value: 'settings', label: 'Settings' }, { value: 'remove', label: 'Remove' }]
+          : [{ value: 'info', label: 'Info' }, { value: 'settings', label: 'Settings' }]
+        return (
+          <Box key={it.name} flexDirection="column">
+            <Box>
+              <Text color={color}>{mark} </Text>
+              <Text bold={it.origin === 'mine'} color={it.origin === 'mine' ? 'green' : undefined} dimColor={it.status === 'disabled'}>{it.name}</Text>
+              <Text dimColor>  {it.status}{it.note ? ` · ${it.note}` : ''}{it.origin === 'mine' ? ' · mine' : it.origin === 'builtin' ? ' · built-in' : ''}  </Text>
+              <Select key={`menu-${t}-${it.name}`} label="⋯" options={menu} value="info" onSelect={(v: string) => act($, it, t, v)} />
+            </Box>
+            {pending === it.name && (
+              <Box>
+                <Text color="red">Remove {it.name}?  </Text>
+                <Button key={`yes-${it.name}`} label="Remove" onPress={() => uninstall($, it.name)} />
+                <Button key={`no-${it.name}`} label="Cancel" onPress={() => update($, confirm, () => null)} />
+              </Box>
+            )}
+          </Box>
+        )
+      })}
+      <Text dimColor>● running  ○ disabled   green = made by you</Text>
+    </Box>
+  )
 }
 
 export const register: Register = on => {
@@ -124,13 +168,17 @@ export const register: Register = on => {
       s = await read($, snap)
     }
     const { Text } = $.ui.resolve(e)
-    return s ? body($, e, s) : <Text dimColor>Loading...</Text>
+    const t = await read($, tab)
+    const pending = await read($, confirm)
+    return s ? body($, e, s, t, pending) : <Text dimColor>Loading...</Text>
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const { Box, Button } = $.ui.resolve(e)
     const open = await read($, isOpen)
     const s = await read($, snap)
+    const t = await read($, tab)
+    const pending = await read($, confirm)
     // Compose with other mods' bands (e.g. prompt-score) instead of replacing them.
     const rest = await next(e)
 
@@ -145,7 +193,7 @@ export const register: Register = on => {
         <Button key="toggle" label={open ? '✻ Loaded ▾' : '✻ Loaded ▸'} onPress={toggle} hotkey="l" />
         {open && s && (
           <Box flexDirection="column" borderStyle="round" paddingX={1}>
-            {body($, e, s)}
+            {body($, e, s, t, pending)}
           </Box>
         )}
         {rest}
