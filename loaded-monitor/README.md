@@ -1,7 +1,7 @@
 # loaded-monitor
 
 A Claude Code mod that shows what the session has loaded: plugins and mods, skills,
-tools, MCP servers and agents. Open it with `/loaded` (side pane; run again to close; Refresh `r` / Close `x` inside) or the ✻ Loaded
+tools, MCP servers and agents. Open it with `/loaded` (side pane; run again to close; `/loaded web` opens the HTML design in the browser, live data; Refresh `r` / Close `x` inside) or the ✻ Loaded
 button above the prompt (press `l` while the band has focus: Ctrl+X Tab, or click).
 
 ## Install

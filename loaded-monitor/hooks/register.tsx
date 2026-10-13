@@ -3,6 +3,8 @@ import type { Register } from 'claude-code'
 
 import type { Snapshot, Item, Origin } from '../types'
 import own from '../own'
+import { buildHtml } from '../web'
+import type { Row } from '../web'
 
 const PANE = 'loaded-monitor'
 const isOpen = atom({ plugin: 'loaded-monitor', key: 'isOpen' } as const, false)
@@ -100,6 +102,49 @@ async function collect($: any): Promise<Snapshot> {
 async function refresh($: any) {
   const fresh = await collect($)
   await update($, snap, () => fresh)
+}
+
+
+const tagOf = (it: Item) => (it.origin === 'mine' ? 'DEV' : it.origin === 'installed' ? 'WEB' : 'CORE')
+
+// The approved HTML design (design/loaded-panel.html) filled with this session's real items, opened in the browser.
+// Works from any surface, including chat views that cannot draw a pane.
+async function openWeb($: any): Promise<string> {
+  const s = (await read($, snap)) ?? (await refresh($), await read($, snap))
+  if (!s) return 'Nothing collected yet.'
+  const row = (it: Item, g: string, kind: string): Row => {
+    const plugin = kind === 'plugins' && it.name.includes('@')
+    return {
+      g,
+      n: it.name.split('@')[0] ?? it.name,
+      m: (it.desc ?? '').slice(0, 110) || `${it.kind}${it.note ? ' · ' + it.note : ''}`,
+      s: it.status === 'disabled' ? 'off' : it.status === 'running' || it.kind.includes('mod') ? 'run' : 'load',
+      sc: tagOf(it),
+      i: it.origin === 'mine' ? 'a' : it.origin === 'installed' ? 'b' : '',
+      l: it.link,
+      cmd: plugin
+        ? { Settings: `claude plugin ${it.status === 'disabled' ? 'enable' : 'disable'} ${it.name}`, Remove: `claude plugin uninstall ${it.name}` }
+        : undefined,
+    }
+  }
+  const byOrigin = (xs: Item[], kind: string) =>
+    xs.map(it => row(it, it.origin === 'mine' ? 'Mine' : it.origin === 'installed' ? 'Installed' : 'Built-in', kind))
+  const data: Record<string, Row[]> = {
+    Plugins: s.plugins.map(it => row(it, it.kind.includes('mod') ? 'Mods' : 'Plugins', 'plugins')),
+    Skills: byOrigin(s.skills, 'skills'),
+    Tools: byOrigin(s.tools, 'tools'),
+    MCP: s.mcp.map(m => row({ name: m.server, origin: m.origin, status: m.status, kind: 'mcp', note: `${m.tools} tools` }, 'Connected', 'mcp')),
+    Agents: byOrigin(s.agents, 'agents'),
+  }
+  const root = $.plugin.root.split('\\').join('/')
+  let template = ''
+  try { template = await $.fs.read(`${root}/design/loaded-panel.html`) } catch { return 'design/loaded-panel.html is missing from the plugin.' }
+  const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
+  const out = `${home}/.claude/loaded-monitor-panel.html`
+  await $.fs.write(out, buildHtml(template, data))
+  const win = (await $.env.get('OS')) === 'Windows_NT'
+  await $.process.run(win ? ['cmd', '/c', 'start', '', out.split('/').join('\\')] : ['xdg-open', out])
+  return `Opened ${out}`
 }
 
 // One toggle for the band button, /loaded and hotkey: docked pane on the right, inline panel as fallback.
@@ -247,9 +292,14 @@ export const register: Register = on => {
   })
 
   // /loaded, the band button and hotkey `l` all toggle the same view (docked right pane, inline fallback).
-  on('command.run', { command: 'loaded' }, async $ => {
+  on('command.run', { command: 'loaded' }, async ($, e) => {
+    if ((e.args ?? '').trim() === 'web') return { text: await openWeb($) }
     const r = await toggleView($)
-    return { text: r === 'closed' ? 'Loaded closed.' : r === 'pane' ? 'Loaded opened on the right.' : 'Terminal too narrow for a side pane; opened inline above the prompt.' }
+    if (r === 'inline') {
+      // No surface placed the pane (e.g. a chat view): show the HTML panel instead.
+      return { text: await openWeb($) }
+    }
+    return { text: r === 'closed' ? 'Loaded closed.' : 'Loaded opened on the right. (/loaded web opens the browser version.)' }
   })
 
   on('ui.close', { id: PANE }, async ($, e, next) => {
