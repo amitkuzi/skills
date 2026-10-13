@@ -12,6 +12,6 @@ export type Snapshot = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'loaded-monitor': { isOpen: boolean; snap: Snapshot | null }
+    'loaded-monitor': { isOpen: boolean; paneOpen: boolean; snap: Snapshot | null }
   }
 }

@@ -6,6 +6,7 @@ import own from '../own'
 
 const PANE = 'loaded-monitor'
 const isOpen = atom({ plugin: 'loaded-monitor', key: 'isOpen' } as const, false)
+const paneOpen = atom({ plugin: 'loaded-monitor', key: 'paneOpen' } as const, false)
 const snap = atom({ plugin: 'loaded-monitor', key: 'snap' } as const, null)
 
 const uniq = (xs: string[]) => [...new Set(xs)].sort()
@@ -48,6 +49,14 @@ async function refresh($: any) {
   await update($, snap, () => fresh)
 }
 
+async function close($: any) {
+  await update($, isOpen, () => false)
+  if (await read($, paneOpen)) {
+    await update($, paneOpen, () => false)
+    await $.ui.close({ id: PANE })
+  }
+}
+
 function body($: any, e: any, s: Snapshot) {
     const { Box, Text, Button } = $.ui.resolve(e)
     const mark = (o: Origin) => (o === 'mine' ? '●' : o === 'installed' ? '○' : '·')
@@ -68,7 +77,10 @@ function body($: any, e: any, s: Snapshot) {
         {line('MCP servers', s.mcp.map(m => ({ name: `${m.server} (${m.tools})`, origin: m.origin })))}
         {line('Agents', s.agents)}
         <Text dimColor>● mine   ○ installed   · built-in</Text>
-        <Button key="refresh" label="Refresh" onPress={() => refresh($)} />
+        <Box>
+          <Button key="refresh" label="Refresh" onPress={() => refresh($)} hotkey="r" />
+          <Button key="close" label="Close" onPress={() => close($)} hotkey="x" />
+        </Box>
       </Box>
     )
 }
@@ -82,10 +94,27 @@ export const register: Register = on => {
     return next(e)
   })
 
+  // /loaded toggles the side pane (open <-> close); the band button toggles the inline panel.
   on('command.run', { command: 'loaded' }, async $ => {
+    if (await read($, paneOpen)) {
+      await update($, paneOpen, () => false)
+      await $.ui.close({ id: PANE })
+      return { text: 'Loaded-monitor pane closed.' }
+    }
     await refresh($)
-    await $.ui.open({ id: PANE, title: 'Loaded' })
-    return { text: 'Loaded-monitor pane opened.' }
+    const r = await $.ui.open({ id: PANE, title: 'Loaded' })
+    if (!r.isPlaced) {
+      // Terminal too narrow for a side pane: fall back to the inline panel.
+      await update($, isOpen, () => true)
+      return { text: 'Terminal too narrow for a pane; opened the inline panel above the prompt.' }
+    }
+    await update($, paneOpen, () => true)
+    return { text: 'Loaded-monitor pane opened. Run /loaded again to close.' }
+  })
+
+  on('ui.close', { id: PANE }, async ($, e, next) => {
+    await update($, paneOpen, () => false)
+    return next(e)
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
