@@ -1,0 +1,19 @@
+{
+  "name": "amitkuzi-skills",
+  "description": "Amit Kuzi Claude Code mods: loaded-monitor and prompt-score.",
+  "owner": { "name": "Amit Kuzi" },
+  "plugins": [
+    {
+      "name": "loaded-monitor",
+      "description": "Panel showing loaded plugins, skills, tools, MCP servers and agents, with a mine/installed origin indicator.",
+      "version": "0.2.0",
+      "source": "./loaded-monitor"
+    },
+    {
+      "name": "prompt-score",
+      "description": "Scores every prompt 1-100 for prompt-engineering quality, with an actions menu above the prompt.",
+      "version": "0.1.0",
+      "source": "./prompt-score"
+    }
+  ]
+}

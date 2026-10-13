@@ -4,6 +4,17 @@ A Claude Code mod that shows what the session has loaded: plugins and mods, skil
 tools, MCP servers and agents. Open it with `/loaded` (side pane) or the ✻ Loaded
 button above the prompt (Ctrl+L).
 
+## Install
+
+From the Plugins screen: add the marketplace, then install.
+
+```
+/plugin marketplace add D:/Development/Skills
+/plugin install loaded-monitor@amitkuzi-skills
+```
+
+(After pushing, `/plugin marketplace add amitkuzi/skills` also works.)
+
 ## Status
 
 - v0.1.0: working prototype. Lists everything; no per-item status or menu yet.

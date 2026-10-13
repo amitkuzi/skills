@@ -1,0 +1,10 @@
+write a Wolfenstein 3d clone using typographic style Graphix , use adversary agent to test the result and giv a score . dont stop until you get a 90% + score . commit localy each iteration so can test each one myself 
+
+
+
+write a Wolfenstein 3d clone using unreal 5 enging , and a neo fascist steampunk style Graphics ,
+change control to modern normal control 
+ use adversary agent to test the result and giv a score . dont stop until you get a 90% + score .
+ report result after each iteration 
+ commit localy each iteration so can test each one myself 
+ you have permition to download and install enging localy 
