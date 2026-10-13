@@ -20,7 +20,58 @@ const ICON: Record<string, string> = { mod: '⚙', skill: '✦', agent: '☻', c
 const iconOf = (kind: string) => kind.split('+').map(k => ICON[k] ?? '•').join('')
 const REPO = 'https://github.com/amitkuzi/skills'
 
-type Meta = { kind: string; desc?: string; link?: string }
+type Meta = { kind: string; desc?: string; link?: string; v?: string }
+
+// claude.ai connectors are exposed to the engine under a GUID, not a name (mcp__<guid>__tool).
+// Known ones are named here; any other GUID is named from its tools' common prefix.
+const CONNECTORS: Record<string, string> = {
+  '1348a263': 'Slack',
+  '1a59c906': 'Claude Docs',
+  '2e1fff26': 'Gmail',
+  '33a08b08': 'Context & Git (memory, sessions, repos)',
+  '67df41de': 'Google Calendar',
+  '6f616b42': 'Visualize (claude.ai)',
+  '7662347f': 'Postman',
+  '7c80295c': 'Google Drive',
+}
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+const serverName = (server: string, tools: string[]): string => {
+  if (!GUID.test(server)) return server
+  const id = server.slice(0, 8)
+  if (CONNECTORS[id]) return `${CONNECTORS[id]} (${id})`
+  const first = tools[0]?.split('__')[2]?.split('_')[0]
+  return first ? `${first} (${id})` : server
+}
+const toolShort = (t: string) => t.split('__').slice(2).join('__') || t
+
+// ---- Debug stream: tool calls, model steps, turns, with token usage. Written for the web panel's Logs tab. ----
+type LogEntry = { t: number; k: string; n: string; ms?: number; ok?: boolean; note?: string; tok?: string }
+const LOG: LogEntry[] = []
+const TOTALS = { calls: 0, errors: 0, steps: 0, input: 0, output: 0, cacheRead: 0 }
+let webOn = false
+const MAX_LOG = 400
+
+async function flushLog($: any) {
+  if (!webOn) return
+  try {
+    const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
+    let ctx: unknown = null
+    let limits: unknown[] = []
+    try {
+      const u = await $.session.usage()
+      ctx = u.context ? { percent: u.context.percent, tokens: u.context.tokens, window: u.context.window } : null
+      limits = u.rateLimits ?? []
+    } catch { /* usage is optional */ }
+    const body = { updated: await $.clock.now(), totals: TOTALS, ctx, limits, entries: LOG }
+    await $.fs.write(`${home}/.claude/loaded-monitor-log.js`, `window.__LOADED_LOG = ${JSON.stringify(body)};`)
+  } catch { /* logging must never break the session */ }
+}
+
+async function note($: any, e: LogEntry) {
+  LOG.push(e)
+  if (LOG.length > MAX_LOG) LOG.splice(0, LOG.length - MAX_LOG)
+  await flushLog($)
+}
 
 const jsonAt = async ($: any, path: string): Promise<any> => {
   try { return JSON.parse(await $.fs.read(path)) } catch { return null }
@@ -54,7 +105,7 @@ async function pluginMeta($: any): Promise<Record<string, Meta>> {
       man.homepage || repo ||
       (own.marketplaces.includes(market) ? `${REPO}/tree/master/${baseName}` : undefined) ||
       (m?.repo ? `https://github.com/${m.repo}` : m?.url?.replace('.git', ''))
-    out[name] = { kind: kinds.join('+') || 'plugin', desc: man.description, link }
+    out[name] = { kind: kinds.join('+') || 'plugin', desc: man.description, link, v: man.version }
   }
   return out
 }
@@ -70,7 +121,7 @@ const originOf = (name: string, builtin = false): Origin => {
 const items = (xs: string[], builtin = false, off: string[] = [], kind = '', meta: Record<string, Meta> = {}): Item[] =>
   uniq(xs).map(name => ({
     name, origin: originOf(name, builtin), status: off.includes(name) ? 'disabled' : 'loaded',
-    kind: meta[name]?.kind ?? kind, desc: meta[name]?.desc, link: meta[name]?.link,
+    kind: meta[name]?.kind ?? kind, desc: meta[name]?.desc, link: meta[name]?.link, v: meta[name]?.v,
   }))
 
 async function collect($: any): Promise<Snapshot> {
@@ -79,11 +130,11 @@ async function collect($: any): Promise<Snapshot> {
     const agents = await $.agent.list()
     const settings = await $.settings.read()
     const enabled = (settings.enabledPlugins ?? {}) as Record<string, boolean>
-    const byServer = new Map<string, number>()
+    const byServer = new Map<string, string[]>()
     for (const t of tools) {
       if (!t.mcp) continue
       const server = t.name.split('__')[1] ?? t.name
-      byServer.set(server, (byServer.get(server) ?? 0) + 1)
+      byServer.set(server, [...(byServer.get(server) ?? []), t.name])
     }
     const meta = await pluginMeta($)
     return {
@@ -94,7 +145,10 @@ async function collect($: any): Promise<Snapshot> {
       skills: items(cmds.filter((c: any) => c.source === 'plugin' || c.source === 'user').map((c: any) => c.name), false, [], 'skill'),
       commands: items(cmds.filter((c: any) => c.source === 'builtin').map((c: any) => c.name), true, [], 'command'),
       tools: items(tools.filter((t: any) => !t.mcp).map((t: any) => t.name), true, [], 'tool'),
-      mcp: [...byServer].map(([server, n]) => ({ server, tools: n, origin: originOf(server), status: 'running' })),
+      mcp: [...byServer].map(([server, names]) => {
+        const name = serverName(server, names)
+        return { server: name, id: server, tools: names.length, names: names.map(toolShort), origin: originOf(name), status: 'running' }
+      }),
       agents: items(agents.map((a: any) => a.id), false, [], 'agent'),
     }
 }
@@ -118,6 +172,11 @@ async function openWeb($: any): Promise<string> {
       g,
       n: it.name.split('@')[0] ?? it.name,
       m: (it.desc ?? '').slice(0, 110) || `${it.kind}${it.note ? ' · ' + it.note : ''}`,
+      k: it.kind,
+      d: it.desc,
+      v: it.v,
+      id: it.name,
+      tools: it.tools,
       s: it.status === 'disabled' ? 'off' : it.status === 'running' || it.kind.includes('mod') ? 'run' : 'load',
       sc: tagOf(it),
       i: it.origin === 'mine' ? 'a' : it.origin === 'installed' ? 'b' : '',
@@ -133,7 +192,7 @@ async function openWeb($: any): Promise<string> {
     Plugins: s.plugins.map(it => row(it, it.kind.includes('mod') ? 'Mods' : 'Plugins', 'plugins')),
     Skills: byOrigin(s.skills, 'skills'),
     Tools: byOrigin(s.tools, 'tools'),
-    MCP: s.mcp.map(m => row({ name: m.server, origin: m.origin, status: m.status, kind: 'mcp', note: `${m.tools} tools` }, 'Connected', 'mcp')),
+    MCP: s.mcp.map(m => row({ name: m.server, origin: m.origin, status: m.status, kind: 'mcp', note: `${m.tools} tools`, tools: m.names, desc: `claude.ai connector ${m.id}` }, 'Connected', 'mcp')),
     Agents: byOrigin(s.agents, 'agents'),
   }
   const root = $.plugin.root.split('\\').join('/')
@@ -141,7 +200,15 @@ async function openWeb($: any): Promise<string> {
   try { template = await $.fs.read(`${root}/design/loaded-panel.html`) } catch { return 'design/loaded-panel.html is missing from the plugin.' }
   const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
   const out = `${home}/.claude/loaded-monitor-panel.html`
-  await $.fs.write(out, buildHtml(template, data))
+  let extraJs = ''
+  let extraCss = ''
+  try {
+    extraJs = await $.fs.read(`${root}/design/panel-extra.js`)
+    extraCss = await $.fs.read(`${root}/design/panel-extra.css`)
+  } catch { /* the base design still opens without extras */ }
+  await $.fs.write(out, buildHtml(template, data, extraJs, extraCss))
+  webOn = true
+  await flushLog($)
   const win = (await $.env.get('OS')) === 'Windows_NT'
   await $.process.run(win ? ['cmd', '/c', 'start', '', out.split('/').join('\\')] : ['xdg-open', out])
   return `Opened ${out}`
@@ -175,7 +242,7 @@ const TABS = ['plugins', 'skills', 'tools', 'mcp', 'agents'] as const
 const TITLE: Record<string, string> = { plugins: 'Plugins', skills: 'Skills', tools: 'Tools', mcp: 'MCP', agents: 'Agents' }
 
 const rowsOf = (s: Snapshot, t: string): Item[] =>
-  t === 'mcp' ? s.mcp.map(m => ({ name: m.server, origin: m.origin, status: m.status, kind: 'mcp', note: `${m.tools} tools` })) : (s[t as 'plugins'] as Item[])
+  t === 'mcp' ? s.mcp.map(m => ({ name: m.server, origin: m.origin, status: m.status, kind: 'mcp', note: `${m.tools} tools`, tools: m.names })) : (s[t as 'plugins'] as Item[])
 
 async function act($: any, it: Item, kind: string, choice: string) {
   if (choice === 'info') {
@@ -300,6 +367,48 @@ export const register: Register = on => {
       return { text: await openWeb($) }
     }
     return { text: r === 'closed' ? 'Loaded closed.' : 'Loaded opened on the right. (/loaded web opens the browser version.)' }
+  })
+
+  // Debug stream. Each hook observes and passes through; a logging failure never changes the call.
+  on('tool.call', async ($, e, next) => {
+    const t0 = await $.clock.now()
+    const r: any = await next(e)
+    try {
+      const ms = (await $.clock.now()) - t0
+      const failed = Boolean(r?.deny) || Boolean(r?.isError)
+      TOTALS.calls++
+      if (failed) TOTALS.errors++
+      const name = String((e as any).tool)
+      await note($, { t: t0, k: name.startsWith('mcp__') ? 'mcp' : 'tool', n: name.startsWith('mcp__') ? `${serverName(name.split('__')[1] ?? '', [name])}: ${toolShort(name)}` : name, ms, ok: !failed, note: r?.deny ? String(r.deny).slice(0, 160) : undefined })
+    } catch { /* ignore */ }
+    return r
+  })
+
+  // turn.step streams: pass every chunk through, then read the settled response for its token usage.
+  on('turn.step', async function* ($, e, next) {
+    const t0 = await $.clock.now()
+    const stream = next(e)
+    for await (const chunk of stream) yield chunk
+    const r: any = await stream.result
+    try {
+      const u = r?.usage
+      TOTALS.steps++
+      TOTALS.input += u?.input_tokens ?? 0
+      TOTALS.output += u?.output_tokens ?? 0
+      TOTALS.cacheRead += u?.cache_read_input_tokens ?? 0
+      await note($, {
+        t: t0, k: 'step', n: String((e as any).model), ms: (await $.clock.now()) - t0, ok: true,
+        tok: u ? `${u.input_tokens ?? 0} in / ${u.output_tokens ?? 0} out${u.cache_read_input_tokens ? ' / ' + u.cache_read_input_tokens + ' cached' : ''}` : undefined,
+        note: r?.stopReason ? `stop: ${r.stopReason}` : undefined,
+      })
+    } catch { /* ignore */ }
+    return r
+  })
+
+  on('turn.complete', async ($, e, next) => {
+    const r = await next(e)
+    try { await note($, { t: await $.clock.now(), k: 'turn', n: 'turn complete', ok: true }) } catch { /* ignore */ }
+    return r
   })
 
   on('ui.close', { id: PANE }, async ($, e, next) => {

@@ -1,0 +1,36 @@
+/* loaded-monitor extras: dialog, toast, logs. Uses the brand-kit tokens already defined by the design. */
+.board { grid-template-columns: minmax(0, 520px) !important; }
+#dlg { position: fixed; inset: 0; background: rgba(20,17,15,.55); display: none; place-items: center; z-index: 20; padding: 16px; }
+#dlg.open { display: grid; }
+.dlg-box { background: var(--raised); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); width: min(520px, 100%); max-height: 86vh; overflow: auto; padding: 0 0 16px; }
+.dlg-box > :not(.dh) { margin-inline: 16px; }
+.dh { display: flex; gap: 12px; align-items: center; background: var(--base); color: #F4EFE7; padding: 14px 16px; border-radius: 10px 10px 0 0; margin-bottom: 12px; }
+.dh h3 { font-size: 17px; font-weight: 700; }
+.dh > div { flex: 1; min-width: 0; }
+.dsub { color: #B5A797; font-size: 12.5px; }
+.dk { font-size: 20px; color: var(--ember); }
+.dlg-box dl { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 6px 12px; margin-block: 0 8px; }
+.dlg-box dt { color: var(--fg2); font-size: 12.5px; }
+.dlg-box dd { margin: 0; overflow-wrap: anywhere; }
+.dlg-box a { color: var(--ember-ink); }
+.dlg-box h4 { margin: 14px 16px 6px; font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--fg2); }
+.dlg-box .dd { margin-block: 0; color: var(--fg2); }
+.dlg-box ol { margin-block: 0; padding-inline-start: 20px; }
+.dlg-box pre { background: var(--ground); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 0 16px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; }
+.chips2 { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips2 code { background: var(--idle-bg); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+#toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 20px); background: var(--base); color: #F4EFE7; border-left: 4px solid var(--ember); border-radius: 6px; padding: 10px 14px; max-width: min(520px, calc(100% - 32px)); opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; z-index: 30; overflow-wrap: anywhere; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+.logsum { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.card { background: var(--ground); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; display: grid; font-size: 11.5px; color: var(--fg2); min-width: 78px; }
+.card b { font: 800 17px var(--f-display); color: var(--fg); font-variant-numeric: tabular-nums; }
+.card.bad b { color: var(--err); }
+.logbar { display: flex; gap: 8px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+.lu { margin-inline-start: auto; color: var(--fg2); font-size: 12px; }
+.logrow { display: grid; grid-template-columns: 74px 56px minmax(0, 1fr) auto; gap: 8px; padding: 6px 16px; border-bottom: 1px solid var(--line); font-size: 12.5px; align-items: baseline; }
+.logrow .lt, .logrow .lm { color: var(--fg2); font-variant-numeric: tabular-nums; }
+.logrow .lk { color: var(--brass); }
+.logrow .ln { overflow-wrap: anywhere; font-weight: 600; }
+.logrow .lx { grid-column: 3 / -1; color: var(--fg2); overflow-wrap: anywhere; }
+.logrow.bad { background: var(--err-bg); }
+.logrow.bad .ln { color: var(--err); }
