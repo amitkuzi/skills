@@ -111,7 +111,10 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
             <Box>
               <Text color={color}>{mark} </Text>
               <Text bold={it.origin === 'mine'} color={it.origin === 'mine' ? 'green' : undefined} dimColor={it.status === 'disabled'}>{it.name}</Text>
-              <Text dimColor>  {it.status}{it.note ? ` · ${it.note}` : ''}{it.origin === 'mine' ? ' · mine' : it.origin === 'builtin' ? ' · built-in' : ''}  </Text>
+              <Text dimColor>  {it.status}{it.note ? ` · ${it.note}` : ''}  </Text>
+              <Text bold color={it.origin === 'mine' ? 'green' : it.origin === 'installed' ? 'yellow' : undefined} dimColor={it.origin === 'builtin'}>
+                {it.origin === 'mine' ? '[DEV]' : it.origin === 'installed' ? `[WEB${it.name.includes('@') ? ' ' + it.name.split('@')[1] : ''}]` : '[CORE]'}{' '}
+              </Text>
               <Select key={`menu-${t}-${it.name}`} label="⋯" options={menu} value="info" onSelect={(v: string) => act($, it, t, v)} />
             </Box>
             {pending === it.name && (
@@ -124,7 +127,7 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
           </Box>
         )
       })}
-      <Text dimColor>● running  ○ disabled   green = made by you</Text>
+      <Text dimColor>● running  ○ disabled   [DEV] mine   [WEB] from the internet / marketplace   [CORE] built-in</Text>
     </Box>
   )
 }
