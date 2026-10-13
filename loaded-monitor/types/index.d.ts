@@ -1,5 +1,5 @@
 export type Origin = 'mine' | 'installed' | 'builtin'
-export type Item = { name: string; origin: Origin; status: string; note?: string }
+export type Item = { name: string; origin: Origin; status: string; kind: string; desc?: string; link?: string; note?: string }
 
 export type Snapshot = {
   plugins: Item[]

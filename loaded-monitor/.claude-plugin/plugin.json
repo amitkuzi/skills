@@ -1,1 +1,1 @@
-{ "name": "loaded-monitor", "version": "0.4.0", "description": "Toggle panel above the prompt showing loaded plugins, skills, tools and MCP servers", "types": "./types/index.d.ts" }
+{ "name": "loaded-monitor", "version": "0.5.0", "description": "Toggle panel above the prompt showing loaded plugins, skills, tools and MCP servers", "types": "./types/index.d.ts" }

@@ -11,6 +11,49 @@ const tab = atom({ plugin: 'loaded-monitor', key: 'tab' } as const, 'plugins')
 const confirm = atom({ plugin: 'loaded-monitor', key: 'confirm' } as const, null)
 const snap = atom({ plugin: 'loaded-monitor', key: 'snap' } as const, null)
 
+// Amit Kuzi brand kit (dark variant, from design/loaded-panel.html)
+const BRAND = { ember: '#E4632D', brass: '#C9A227', fg: '#F4EFE7', fg2: '#B5A797', line: '#3A332C', ok: '#6FCB93', err: '#F2877F', idle: '#A99C8B' }
+const REPO = 'https://github.com/amitkuzi/skills'
+
+type Meta = { kind: string; desc?: string; link?: string }
+
+const jsonAt = async ($: any, path: string): Promise<any> => {
+  try { return JSON.parse(await $.fs.read(path)) } catch { return null }
+}
+
+// Type + description + link per installed plugin, read from its folder in the plugin cache.
+async function pluginMeta($: any): Promise<Record<string, Meta>> {
+  const home = (await $.env.get('USERPROFILE')) ?? (await $.env.get('HOME'))
+  if (!home) return {}
+  const base = `${home}/.claude/plugins`
+  const installed = await jsonAt($, `${base}/installed_plugins.json`)
+  const markets = (await jsonAt($, `${base}/known_marketplaces.json`)) ?? {}
+  const out: Record<string, Meta> = {}
+  for (const [name, entries] of Object.entries<any>(installed?.plugins ?? installed ?? {})) {
+    const dir = entries?.[0]?.installPath?.split('\\').join('/')
+    if (!dir) continue
+    const man = (await jsonAt($, `${dir}/.claude-plugin/plugin.json`)) ?? {}
+    const hooks = await jsonAt($, `${dir}/hooks/hooks.json`)
+    const has = async (rel: string) => { try { return await $.fs.exists(`${dir}/${rel}`) } catch { return false } }
+    const kinds = [
+      hooks?.modules ? 'mod' : '',
+      (await has('skills')) ? 'skill' : '',
+      (await has('agents')) ? 'agent' : '',
+      (await has('commands')) ? 'command' : '',
+      (await has('.mcp.json')) || man.mcpServers ? 'mcp' : '',
+    ].filter(Boolean)
+    const [baseName = '', market = ''] = name.split('@')
+    const repo = typeof man.repository === 'string' ? man.repository : man.repository?.url
+    const m = markets[market]?.source
+    const link =
+      man.homepage || repo ||
+      (own.marketplaces.includes(market) ? `${REPO}/tree/master/${baseName}` : undefined) ||
+      (m?.repo ? `https://github.com/${m.repo}` : m?.url?.replace('.git', ''))
+    out[name] = { kind: kinds.join('+') || 'plugin', desc: man.description, link }
+  }
+  return out
+}
+
 const uniq = (xs: string[]) => [...new Set(xs)].sort()
 
 // Origin: mine = listed in own.json (by name or marketplace); builtin = Claude Code core; else installed.
@@ -19,8 +62,11 @@ const originOf = (name: string, builtin = false): Origin => {
   if (own.names.includes(base) || (market && own.marketplaces.includes(market))) return 'mine'
   return builtin ? 'builtin' : 'installed'
 }
-const items = (xs: string[], builtin = false, off: string[] = []): Item[] =>
-  uniq(xs).map(name => ({ name, origin: originOf(name, builtin), status: off.includes(name) ? 'disabled' : 'loaded' }))
+const items = (xs: string[], builtin = false, off: string[] = [], kind = '', meta: Record<string, Meta> = {}): Item[] =>
+  uniq(xs).map(name => ({
+    name, origin: originOf(name, builtin), status: off.includes(name) ? 'disabled' : 'loaded',
+    kind: meta[name]?.kind ?? kind, desc: meta[name]?.desc, link: meta[name]?.link,
+  }))
 
 async function collect($: any): Promise<Snapshot> {
     const tools = await $.tool.list()
@@ -34,22 +80,39 @@ async function collect($: any): Promise<Snapshot> {
       const server = t.name.split('__')[1] ?? t.name
       byServer.set(server, (byServer.get(server) ?? 0) + 1)
     }
+    const meta = await pluginMeta($)
     return {
       plugins: items([
         ...Object.keys(enabled),
         ...cmds.flatMap((c: any) => (c.plugin ? [c.plugin] : [])),
-      ], false, Object.keys(enabled).filter(k => !enabled[k])),
-      skills: items(cmds.filter((c: any) => c.source === 'plugin' || c.source === 'user').map((c: any) => c.name)),
-      commands: items(cmds.filter((c: any) => c.source === 'builtin').map((c: any) => c.name), true),
-      tools: items(tools.filter((t: any) => !t.mcp).map((t: any) => t.name), true),
+      ], false, Object.keys(enabled).filter(k => !enabled[k]), 'plugin', meta),
+      skills: items(cmds.filter((c: any) => c.source === 'plugin' || c.source === 'user').map((c: any) => c.name), false, [], 'skill'),
+      commands: items(cmds.filter((c: any) => c.source === 'builtin').map((c: any) => c.name), true, [], 'command'),
+      tools: items(tools.filter((t: any) => !t.mcp).map((t: any) => t.name), true, [], 'tool'),
       mcp: [...byServer].map(([server, n]) => ({ server, tools: n, origin: originOf(server), status: 'running' })),
-      agents: items(agents.map((a: any) => a.id)),
+      agents: items(agents.map((a: any) => a.id), false, [], 'agent'),
     }
 }
 
 async function refresh($: any) {
   const fresh = await collect($)
   await update($, snap, () => fresh)
+}
+
+// One toggle for the band button, /loaded and hotkey: docked pane on the right, inline panel as fallback.
+async function toggleView($: any): Promise<string> {
+  if ((await read($, paneOpen)) || (await read($, isOpen))) {
+    await close($)
+    return 'closed'
+  }
+  await refresh($)
+  const r = await $.ui.open({ id: PANE, title: 'Loaded', columns: 64 })
+  if (r.isPlaced) {
+    await update($, paneOpen, () => true)
+    return 'pane'
+  }
+  await update($, isOpen, () => true)
+  return 'inline'
 }
 
 async function close($: any) {
@@ -64,7 +127,7 @@ const TABS = ['plugins', 'skills', 'tools', 'mcp', 'agents'] as const
 const TITLE: Record<string, string> = { plugins: 'Plugins', skills: 'Skills', tools: 'Tools', mcp: 'MCP', agents: 'Agents' }
 
 const rowsOf = (s: Snapshot, t: string): Item[] =>
-  t === 'mcp' ? s.mcp.map(m => ({ name: m.server, origin: m.origin, status: m.status, note: `${m.tools} tools` })) : (s[t as 'plugins'] as Item[])
+  t === 'mcp' ? s.mcp.map(m => ({ name: m.server, origin: m.origin, status: m.status, kind: 'mcp', note: `${m.tools} tools` })) : (s[t as 'plugins'] as Item[])
 
 async function act($: any, it: Item, kind: string, choice: string) {
   if (choice === 'info') {
@@ -101,14 +164,14 @@ async function uninstall($: any, name: string) {
 }
 
 function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
-  const { Box, Text, Button, Select } = $.ui.resolve(e)
-  const dot = (st: string) => (st === 'running' ? ['●', 'green'] : st === 'disabled' ? ['○', undefined] : st === 'error' ? ['●', 'red'] : ['●', 'yellow'])
+  const { Box, Text, Button, Select, Link } = $.ui.resolve(e)
+  const dot = (st: string) => (st === 'running' || st === 'loaded' ? ['●', BRAND.ok] : st === 'disabled' ? ['○', BRAND.idle] : ['●', BRAND.err])
   const rows = rowsOf(s, t)
   const n = (k: string) => rowsOf(s, k).length
   return (
     <Box flexDirection="column">
       <Box>
-        <Text bold>✻ Loaded  </Text>
+        <Text bold color={BRAND.ember}>✻ Loaded  </Text>
         <Button key="refresh" label="↻" onPress={() => refresh($)} hotkey="r" />
         <Button key="close" label="✕" onPress={() => close($)} hotkey="x" />
       </Box>
@@ -117,7 +180,7 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
           <Button key={`tab-${k}`} label={`${k === t ? '▸' : ' '}${TITLE[k]} ${n(k)}`} onPress={() => update($, tab, () => k)} />
         ))}
       </Box>
-      {rows.length === 0 && <Text dimColor>nothing loaded</Text>}
+      {rows.length === 0 && <Text color={BRAND.fg2}>nothing loaded</Text>}
       {rows.map(it => {
         const [mark, color] = dot(it.status)
         const menu = t === 'plugins' && it.name.includes('@')
@@ -130,20 +193,25 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
               { value: 'remove', label: 'Remove' },
             ]
           : [{ value: 'info', label: 'Info' }, { value: 'settings', label: 'Settings' }, { value: 'reload', label: 'Reload plugins' }]
+        const tag = it.origin === 'mine' ? '[DEV]' : it.origin === 'installed' ? `[WEB${it.name.includes('@') ? ' ' + it.name.split('@')[1] : ''}]` : '[CORE]'
+        const tagColor = it.origin === 'mine' ? BRAND.ember : it.origin === 'installed' ? BRAND.brass : BRAND.idle
         return (
-          <Box key={it.name} flexDirection="column">
+          <Box key={it.name} flexDirection="column" borderStyle="round" borderColor={it.origin === 'mine' ? BRAND.ember : BRAND.line} paddingX={1}>
             <Box>
               <Text color={color}>{mark} </Text>
-              <Text bold={it.origin === 'mine'} color={it.origin === 'mine' ? 'green' : undefined} dimColor={it.status === 'disabled'}>{it.name}</Text>
-              <Text dimColor>  {it.status}{it.note ? ` · ${it.note}` : ''}  </Text>
-              <Text bold color={it.origin === 'mine' ? 'green' : it.origin === 'installed' ? 'yellow' : undefined} dimColor={it.origin === 'builtin'}>
-                {it.origin === 'mine' ? '[DEV]' : it.origin === 'installed' ? `[WEB${it.name.includes('@') ? ' ' + it.name.split('@')[1] : ''}]` : '[CORE]'}{' '}
-              </Text>
+              <Text bold color={BRAND.fg} dimColor={it.status === 'disabled'}>{it.name.split('@')[0]}</Text>
+              <Text bold color={tagColor}>  {tag}</Text>
+              <Text color={BRAND.brass}> {it.kind ? `{${it.kind}}` : ''}</Text>
+            </Box>
+            <Text color={BRAND.fg2}>{(it.desc ?? '').slice(0, 90) || `${it.status}${it.note ? ' · ' + it.note : ''}`}</Text>
+            <Box>
+              {it.link ? <Link href={it.link} label="↗ link" /> : <Text color={BRAND.idle}>no link</Text>}
+              <Text color={BRAND.fg2}>  {it.status}{it.note ? ` · ${it.note}` : ''}  </Text>
               <Select key={`menu-${t}-${it.name}`} label="⋯" options={menu} value="info" onSelect={(v: string) => act($, it, t, v)} />
             </Box>
             {pending === it.name && (
               <Box>
-                <Text color="red">Remove {it.name}?  </Text>
+                <Text color={BRAND.err}>Remove {it.name}?  </Text>
                 <Button key={`yes-${it.name}`} label="Remove" onPress={() => uninstall($, it.name)} />
                 <Button key={`no-${it.name}`} label="Cancel" onPress={() => update($, confirm, () => null)} />
               </Box>
@@ -151,7 +219,7 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
           </Box>
         )
       })}
-      <Text dimColor>● running  ○ disabled   [DEV] mine   [WEB] from the internet / marketplace   [CORE] built-in</Text>
+      <Text color={BRAND.fg2}>● on  ○ off   <Text color={BRAND.ember}>[DEV]</Text> mine  <Text color={BRAND.brass}>[WEB]</Text> internet  [CORE] built-in</Text>
     </Box>
   )
 }
@@ -165,22 +233,10 @@ export const register: Register = on => {
     return next(e)
   })
 
-  // /loaded toggles the side pane (open <-> close); the band button toggles the inline panel.
+  // /loaded, the band button and hotkey `l` all toggle the same view (docked right pane, inline fallback).
   on('command.run', { command: 'loaded' }, async $ => {
-    if (await read($, paneOpen)) {
-      await update($, paneOpen, () => false)
-      await $.ui.close({ id: PANE })
-      return { text: 'Loaded-monitor pane closed.' }
-    }
-    await refresh($)
-    const r = await $.ui.open({ id: PANE, title: 'Loaded' })
-    if (!r.isPlaced) {
-      // Terminal too narrow for a side pane: fall back to the inline panel.
-      await update($, isOpen, () => true)
-      return { text: 'Terminal too narrow for a pane; opened the inline panel above the prompt.' }
-    }
-    await update($, paneOpen, () => true)
-    return { text: 'Loaded-monitor pane opened. Run /loaded again to close.' }
+    const r = await toggleView($)
+    return { text: r === 'closed' ? 'Loaded closed.' : r === 'pane' ? 'Loaded opened on the right.' : 'Terminal too narrow for a side pane; opened inline above the prompt.' }
   })
 
   on('ui.close', { id: PANE }, async ($, e, next) => {
@@ -209,15 +265,12 @@ export const register: Register = on => {
     // Compose with other mods' bands (e.g. prompt-score) instead of replacing them.
     const rest = await next(e)
 
-    const toggle = async () => {
-      const willOpen = !open
-      await update($, isOpen, () => willOpen)
-      if (willOpen) await refresh($)
-    }
+    const paneIsOpen = await read($, paneOpen)
+    const toggle = async () => { await toggleView($) }
 
     return (
       <Box flexDirection="column">
-        <Button key="toggle" label={open ? '✻ Loaded ▾' : '✻ Loaded ▸'} onPress={toggle} hotkey="l" />
+        <Button key="toggle" label={open || paneIsOpen ? '✻ Loaded ▾' : '✻ Loaded ▸'} onPress={toggle} hotkey="l" />
         {open && s && (
           <Box flexDirection="column" borderStyle="round" paddingX={1}>
             {body($, e, s, t, pending)}
