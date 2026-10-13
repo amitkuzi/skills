@@ -138,8 +138,7 @@ async function act($: any, it: Item, kind: string, choice: string) {
       `${origin} · ${it.status}${it.note ? ' · ' + it.note : ''}`,
       it.desc,
       it.link ? `↗ ${it.link}` : undefined,
-    ].filter(Boolean).join('
-'))
+    ].filter(Boolean).join('\n'))
   } else if (choice === 'settings') {
     $.ui.toast(kind === 'plugins' ? `${it.name}: edit enabledPlugins in ~/.claude/settings.json` : `${it.name}: no settings for built-in items`)
   } else if (choice === 'remove') {
