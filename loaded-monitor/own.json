@@ -3,7 +3,7 @@
   "marketplaces": ["amit-toolbox-local"],
   "names": [
     "hebrew-adhd", "adversary", "csharp-standards", "grill-me", "mission-orchestrator",
-    "report", "slant3d", "stage-gate", "visual-manual", "git-conventions", "loaded-monitor",
+    "report", "slant3d", "stage-gate", "visual-manual", "git-conventions", "loaded-monitor", "prompt-score",
     "amit-toolbox-adversary", "amit-avatar-video"
   ]
 }
