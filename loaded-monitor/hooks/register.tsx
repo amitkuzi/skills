@@ -131,7 +131,15 @@ const rowsOf = (s: Snapshot, t: string): Item[] =>
 
 async function act($: any, it: Item, kind: string, choice: string) {
   if (choice === 'info') {
-    $.ui.toast(`${it.name}: ${it.status}, ${it.origin === 'mine' ? 'made by you' : it.origin}${it.note ? ', ' + it.note : ''}`)
+    // Full details as a toast: name, type, origin, status, description, link (link only where one exists).
+    const origin = it.origin === 'mine' ? 'DEV (made by you)' : it.origin === 'installed' ? 'WEB (installed from outside)' : 'CORE (built-in)'
+    $.ui.toast([
+      `${it.name} {${it.kind || 'item'}}`,
+      `${origin} · ${it.status}${it.note ? ' · ' + it.note : ''}`,
+      it.desc,
+      it.link ? `↗ ${it.link}` : undefined,
+    ].filter(Boolean).join('
+'))
   } else if (choice === 'settings') {
     $.ui.toast(kind === 'plugins' ? `${it.name}: edit enabledPlugins in ~/.claude/settings.json` : `${it.name}: no settings for built-in items`)
   } else if (choice === 'remove') {
@@ -205,7 +213,7 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
             </Box>
             <Text color={BRAND.fg2}>{(it.desc ?? '').slice(0, 90) || `${it.status}${it.note ? ' · ' + it.note : ''}`}</Text>
             <Box>
-              {it.link ? <Link href={it.link} label="↗ link" /> : <Text color={BRAND.idle}>no link</Text>}
+              {it.link && <Link href={it.link} label="↗ link" />}
               <Text color={BRAND.fg2}>  {it.status}{it.note ? ` · ${it.note}` : ''}  </Text>
               <Select key={`menu-${t}-${it.name}`} label="⋯" options={menu} value="info" onSelect={(v: string) => act($, it, t, v)} />
             </Box>
