@@ -1,0 +1,9 @@
+{
+  "_doc": "Items I authored. Everything else shows as installed. Match is exact name, or marketplace for plugins.",
+  "marketplaces": ["amit-toolbox-local"],
+  "names": [
+    "hebrew-adhd", "adversary", "csharp-standards", "grill-me", "mission-orchestrator",
+    "report", "slant3d", "stage-gate", "visual-manual", "git-conventions", "loaded-monitor",
+    "amit-toolbox-adversary", "amit-avatar-video"
+  ]
+}
