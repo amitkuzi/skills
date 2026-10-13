@@ -113,7 +113,7 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
-        <Button key="toggle" label={open ? '✻ Loaded ▾' : '✻ Loaded ▸'} onPress={toggle} hotkey="ctrl+l" />
+        <Button key="toggle" label={open ? '✻ Loaded ▾' : '✻ Loaded ▸'} onPress={toggle} hotkey="l" />
         {open && s && (
           <Box flexDirection="column" borderStyle="round" paddingX={1}>
             {body($, e, s)}

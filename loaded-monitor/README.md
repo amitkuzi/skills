@@ -2,7 +2,7 @@
 
 A Claude Code mod that shows what the session has loaded: plugins and mods, skills,
 tools, MCP servers and agents. Open it with `/loaded` (side pane) or the ✻ Loaded
-button above the prompt (Ctrl+L).
+button above the prompt (press `l` while the band has focus: Ctrl+X Tab, or click).
 
 ## Install
 
