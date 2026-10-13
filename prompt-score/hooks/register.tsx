@@ -12,24 +12,36 @@ const isHidden = atom({ plugin: 'prompt-score', key: 'isHidden' } as const, fals
 
 let lastText = ''
 
+const BUSY = 'Improving...'
+const FAILED = 'Could not improve the prompt.'
+
+async function ready($: any): Promise<string> {
+  const text: string = await read($, rewrite)
+  return text && text !== BUSY && text !== FAILED ? text : ''
+}
+
+// Replaces the current prompt with the (possibly edited) rewrite and sends it.
+async function run($: any) {
+  const text = await ready($)
+  if (!text) return
+  await update($, view, () => 'none')
+  void $.prompt.submit({ text })
+}
+
 async function act($: any, value: string) {
   if (value === 'hide') return update($, isHidden, () => true)
   if (value === 'rewrite') {
     await update($, view, () => 'rewrite')
-    await update($, rewrite, () => 'Improving...')
+    await update($, rewrite, () => BUSY)
     const r = await $.model.complete({
       model: 'haiku',
       prompt:
         'Rewrite this prompt to be a well-engineered prompt (clear goal, context, constraints, output format, success criteria). Keep the same intent and language. Reply with the rewritten prompt only.\n\n' +
         lastText,
     })
-    return update($, rewrite, () => (r.isAnswered ? r.text : 'Could not improve the prompt.'))
+    return update($, rewrite, () => (r.isAnswered ? r.text : FAILED))
   }
-  if (value === 'resubmit') {
-    const text = await read($, rewrite)
-    if (text && text !== 'Improving...') void $.prompt.submit({ text })
-    return
-  }
+  if (value === 'resubmit') return run($)
   return update($, view, () => (value === 'close' || value === 'menu' ? 'none' : value))
 }
 
@@ -75,7 +87,8 @@ export const register: Register = on => {
     const v = await read($, view)
     // Compose with other mods' bands (e.g. loaded-monitor) instead of replacing them.
     const rest = await next(e)
-    const { Box, Text, Select } = $.ui.resolve(e)
+    const { Box, Text, Select, Button, Input } = $.ui.resolve(e)
+    const rewritten: string = await read($, rewrite)
     const hist = await read($, history)
     const avg = Math.round(hist.reduce((a, b) => a + b, 0) / hist.length)
 
@@ -94,7 +107,6 @@ export const register: Register = on => {
               { value: 'breakdown', label: 'Show breakdown' },
               { value: 'tips', label: 'Show improvement tips' },
               { value: 'rewrite', label: 'Rewrite my prompt (haiku)' },
-              { value: 'resubmit', label: 'Send the rewritten prompt' },
               { value: 'history', label: 'History' },
               { value: 'close', label: 'Close details' },
               { value: 'hide', label: 'Hide score' },
@@ -116,7 +128,37 @@ export const register: Register = on => {
                 - {c.name}: {c.tip}
               </Text>
             ))}
-        {v === 'rewrite' && <Text dimColor>{await read($, rewrite)}</Text>}
+        {v === 'rewrite' && <Text dimColor>{rewritten}</Text>}
+        {v === 'edit' && (
+          <Input
+            key="rewrite-edit"
+            label="Edit:"
+            value={rewritten}
+            submitLabel="run"
+            autoFocus
+            onInput={value => void update($, rewrite, () => value)}
+            onSubmit={() => void run($)}
+          />
+        )}
+        {(v === 'rewrite' || v === 'edit') && (
+          <Box>
+            <Button key="rw-edit" label="Edit" hotkey="e" onPress={() => void update($, view, () => 'edit')} />
+            <Text> </Text>
+            <Button key="rw-run" label="Run" hotkey="r" variant="primary" onPress={() => void run($)} />
+            <Text> </Text>
+            <Button
+              key="rw-copy"
+              label="Copy"
+              hotkey="c"
+              onPress={async press => {
+                const text = await ready($)
+                if (text) await $.ui.copy({ text, surface: press.surface })
+              }}
+            />
+            <Text> </Text>
+            <Button key="rw-cancel" label="Cancel" hotkey="x" role="dismiss" onPress={() => void update($, view, () => 'none')} />
+          </Box>
+        )}
         {v === 'history' && (
           <Text dimColor>
             {hist.length} prompts, avg {avg}, recent: {hist.slice(-10).join(' ')}
