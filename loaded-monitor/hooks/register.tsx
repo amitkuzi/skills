@@ -13,6 +13,9 @@ const snap = atom({ plugin: 'loaded-monitor', key: 'snap' } as const, null)
 
 // Amit Kuzi brand kit (dark variant, from design/loaded-panel.html)
 const BRAND = { ember: '#E4632D', brass: '#C9A227', fg: '#F4EFE7', fg2: '#B5A797', line: '#3A332C', ok: '#6FCB93', err: '#F2877F', idle: '#A99C8B' }
+// One single-width glyph per item type (terminal-safe, no emoji font needed).
+const ICON: Record<string, string> = { mod: '⚙', skill: '✦', agent: '☻', command: '⌘', mcp: '⇄', tool: '⚒', plugin: '❖' }
+const iconOf = (kind: string) => kind.split('+').map(k => ICON[k] ?? '•').join('')
 const REPO = 'https://github.com/amitkuzi/skills'
 
 type Meta = { kind: string; desc?: string; link?: string }
@@ -134,7 +137,7 @@ async function act($: any, it: Item, kind: string, choice: string) {
     // Full details as a toast: name, type, origin, status, description, link (link only where one exists).
     const origin = it.origin === 'mine' ? 'DEV (made by you)' : it.origin === 'installed' ? 'WEB (installed from outside)' : 'CORE (built-in)'
     $.ui.toast([
-      `${it.name} {${it.kind || 'item'}}`,
+      `${iconOf(it.kind || 'plugin')} ${it.name} · ${it.kind || 'item'}`,
       `${origin} · ${it.status}${it.note ? ' · ' + it.note : ''}`,
       it.desc,
       it.link ? `↗ ${it.link}` : undefined,
@@ -208,7 +211,7 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
               <Text color={color}>{mark} </Text>
               <Text bold color={BRAND.fg} dimColor={it.status === 'disabled'}>{it.name.split('@')[0]}</Text>
               <Text bold color={tagColor}>  {tag}</Text>
-              <Text color={BRAND.brass}> {it.kind ? `{${it.kind}}` : ''}</Text>
+              <Text color={BRAND.brass}> {it.kind ? `${iconOf(it.kind)} ${it.kind}` : ''}</Text>
             </Box>
             <Text color={BRAND.fg2}>{(it.desc ?? '').slice(0, 90) || `${it.status}${it.note ? ' · ' + it.note : ''}`}</Text>
             <Box>
@@ -226,7 +229,10 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
           </Box>
         )
       })}
-      <Text color={BRAND.fg2}>● on  ○ off   <Text color={BRAND.ember}>[DEV]</Text> mine  <Text color={BRAND.brass}>[WEB]</Text> internet  [CORE] built-in</Text>
+      <Box flexDirection="column">
+        <Text color={BRAND.fg2}>● on  ○ off   <Text color={BRAND.ember}>[DEV]</Text> mine  <Text color={BRAND.brass}>[WEB]</Text> internet  [CORE] built-in</Text>
+        <Text color={BRAND.brass}>⚙ mod  ✦ skill  ☻ agent  ⌘ command  ⇄ mcp  ⚒ tool  ❖ plugin</Text>
+      </Box>
     </Box>
   )
 }
