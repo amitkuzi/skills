@@ -6,7 +6,7 @@
     {
       "name": "loaded-monitor",
       "description": "Panel showing loaded plugins, skills, tools, MCP servers and agents, with a mine/installed origin indicator.",
-      "version": "0.3.1",
+      "version": "0.4.0",
       "source": "./loaded-monitor"
     },
     {

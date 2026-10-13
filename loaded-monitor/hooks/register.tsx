@@ -73,7 +73,24 @@ async function act($: any, it: Item, kind: string, choice: string) {
     $.ui.toast(kind === 'plugins' ? `${it.name}: edit enabledPlugins in ~/.claude/settings.json` : `${it.name}: no settings for built-in items`)
   } else if (choice === 'remove') {
     await update($, confirm, () => it.name)
+  } else if (choice === 'enable' || choice === 'disable' || choice === 'update') {
+    $.ui.toast(`${choice} ${it.name}...`)
+    const r = await $.process.run(['claude', 'plugin', choice, it.name], { timeoutMs: 120000 })
+    $.ui.toast(r.exitCode === 0 ? `${it.name}: ${choice} done. Use Reload to apply.` : `${choice} failed: ${(r.stderr || r.stdout).slice(0, 120)}`)
+    await refresh($)
+  } else if (choice === 'reload') {
+    await reload($)
   }
+}
+
+async function reload($: any) {
+  try {
+    await $.command.run({ name: 'reload-plugins' })
+    $.ui.toast('Plugins reloaded.')
+  } catch {
+    $.ui.toast('Could not run /reload-plugins from here; type it in the prompt.')
+  }
+  await refresh($)
 }
 
 async function uninstall($: any, name: string) {
@@ -103,9 +120,16 @@ function body($: any, e: any, s: Snapshot, t: string, pending: string | null) {
       {rows.length === 0 && <Text dimColor>nothing loaded</Text>}
       {rows.map(it => {
         const [mark, color] = dot(it.status)
-        const menu = t === 'plugins'
-          ? [{ value: 'info', label: 'Info' }, { value: 'settings', label: 'Settings' }, { value: 'remove', label: 'Remove' }]
-          : [{ value: 'info', label: 'Info' }, { value: 'settings', label: 'Settings' }]
+        const menu = t === 'plugins' && it.name.includes('@')
+          ? [
+              { value: 'info', label: 'Info' },
+              { value: 'settings', label: 'Settings' },
+              { value: it.status === 'disabled' ? 'enable' : 'disable', label: it.status === 'disabled' ? 'Enable' : 'Disable' },
+              { value: 'update', label: 'Update' },
+              { value: 'reload', label: 'Reload plugins' },
+              { value: 'remove', label: 'Remove' },
+            ]
+          : [{ value: 'info', label: 'Info' }, { value: 'settings', label: 'Settings' }, { value: 'reload', label: 'Reload plugins' }]
         return (
           <Box key={it.name} flexDirection="column">
             <Box>
