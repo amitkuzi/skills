@@ -73,6 +73,8 @@ export const register: Register = on => {
     if (e.props.hasSurvey || s === null || (await read($, isHidden))) return next(e)
 
     const v = await read($, view)
+    // Compose with other mods' bands (e.g. loaded-monitor) instead of replacing them.
+    const rest = await next(e)
     const { Box, Text, Select } = $.ui.resolve(e)
     const hist = await read($, history)
     const avg = Math.round(hist.reduce((a, b) => a + b, 0) / hist.length)
@@ -120,6 +122,7 @@ export const register: Register = on => {
             {hist.length} prompts, avg {avg}, recent: {hist.slice(-10).join(' ')}
           </Text>
         )}
+        {rest}
       </Box>
     )
   })

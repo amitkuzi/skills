@@ -6,13 +6,13 @@
     {
       "name": "loaded-monitor",
       "description": "Panel showing loaded plugins, skills, tools, MCP servers and agents, with a mine/installed origin indicator.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "source": "./loaded-monitor"
     },
     {
       "name": "prompt-score",
       "description": "Scores every prompt 1-100 for prompt-engineering quality, with an actions menu above the prompt.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source": "./prompt-score"
     }
   ]

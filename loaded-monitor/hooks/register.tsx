@@ -102,6 +102,8 @@ export const register: Register = on => {
     const { Box, Button } = $.ui.resolve(e)
     const open = await read($, isOpen)
     const s = await read($, snap)
+    // Compose with other mods' bands (e.g. prompt-score) instead of replacing them.
+    const rest = await next(e)
 
     const toggle = async () => {
       const willOpen = !open
@@ -117,6 +119,7 @@ export const register: Register = on => {
             {body($, e, s)}
           </Box>
         )}
+        {rest}
       </Box>
     )
   })
