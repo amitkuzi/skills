@@ -29,8 +29,9 @@ Where the score shows:
 - Band above the prompt box with an **Actions** menu: breakdown, tips, rewrite (haiku),
   send the rewrite, history, hide.
 - Status line: `prompt 72/100`.
-- Fallback for surfaces that draw no mod UI (the desktop app's Code tab): the mod adds a
-  hidden instruction so the model starts its reply with `Prompt score: N/100 ...`.
+- No in-reply score line: the hidden instruction that made the model start its reply with
+  `Prompt score: N/100` was removed. Surfaces that draw no mod UI (the desktop Code tab)
+  show nothing.
 
 ```bash
 claude --plugin-dir D:/Development/Skills/prompt-score

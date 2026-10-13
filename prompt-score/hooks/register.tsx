@@ -45,15 +45,6 @@ export const register: Register = on => {
       await update($, view, () => 'none')
       await update($, isHidden, () => false)
       $.ui.status(`prompt ${s.score}/100`)
-
-      // Fallback for surfaces that draw no mod UI (e.g. the desktop Code tab):
-      // ask the model to show the score as the first line of its reply.
-      const weakest = [...s.checks].sort((a, b) => b.max - b.got - (a.max - a.got))[0]
-      const note =
-        `Prompt-quality score for the user's message: ${s.score}/100 (${tier(s.score)}). ` +
-        `Begin your reply with exactly this one line, then continue normally: ` +
-        `"Prompt score: ${s.score}/100 (${tier(s.score)}) - biggest gap: ${weakest.name}. ${weakest.tip}"`
-      return next({ ...e, context: [...(e.context ?? []), note] })
     }
     return next(e)
   })

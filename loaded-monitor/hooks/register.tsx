@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 import type { Snapshot, Item, Origin } from '../types'
-import own from '../own.json'
+import own from '../own'
 
 const PANE = 'loaded-monitor'
 const isOpen = atom({ plugin: 'loaded-monitor', key: 'isOpen' } as const, false)
