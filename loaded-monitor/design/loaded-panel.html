@@ -1,0 +1,302 @@
+<title>Loaded Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&family=Rubik:wght@400;500&display=swap">
+<style>
+/* Layout: a design board. Left, the panel at real size (a docked side pane); right, the legend and states. Amit Kuzi brand kit tokens. */
+:root {
+  --ground: #F4EFE7; --raised: #FFFFFF; --base: #221E1A;
+  --fg: #221E1A; --fg2: #6E6357; --line: #E3DACB; --row-hover: #FAF6EF;
+  --ember: #E4632D; --ember-ink: #B8431A; --brass: #C9A227; --on-ember: #1A1210;
+  --ok: #2E7D4F; --ok-bg: #E3F1E8; --warn-bg: #F7EBC4; --warn-ink: #7A5F06;
+  --err: #B3261E; --err-bg: #F8E1DE; --idle: #8C8070; --idle-bg: #EEE7DA;
+  --shadow: 0 10px 30px rgba(34,30,26,.14);
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Public Sans", system-ui, sans-serif;
+  --f-he: "Rubik", "Public Sans", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #1A1714; --raised: #221E1A; --base: #14110F;
+  --fg: #F4EFE7; --fg2: #B5A797; --line: #3A332C; --row-hover: #2A2520;
+  --ember-ink: #F08A5C;
+  --ok: #6FCB93; --ok-bg: #1F3328; --warn-bg: #3A3014; --warn-ink: #E4C65A;
+  --err: #F2877F; --err-bg: #3B1E1B; --idle: #A99C8B; --idle-bg: #2F2923;
+  --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --ground: #1A1714; --raised: #221E1A; --base: #14110F;
+  --fg: #F4EFE7; --fg2: #B5A797; --line: #3A332C; --row-hover: #2A2520;
+  --ember-ink: #F08A5C;
+  --ok: #6FCB93; --ok-bg: #1F3328; --warn-bg: #3A3014; --warn-ink: #E4C65A;
+  --err: #F2877F; --err-bg: #3B1E1B; --idle: #A99C8B; --idle-bg: #2F2923;
+  --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--fg); font: 400 14px/1.45 var(--f-body); padding-inline: 16px; padding-block: 28px; }
+:lang(he), [lang="he"] { font-family: var(--f-he); }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
+.board { max-width: 1040px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 40px; align-items: start; }
+@media (max-width: 860px) { .board { grid-template-columns: minmax(0, 1fr); } }
+.board-head { max-width: 1040px; margin: 0 auto 24px; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: end; }
+.board-head h1 { font-size: 28px; font-weight: 800; letter-spacing: -.01em; }
+.board-head p { margin: 4px 0 0; color: var(--fg2); max-width: 56ch; }
+.theme { border: 1px solid var(--line); background: var(--raised); border-radius: 6px; padding: 6px 12px; font-size: 13px; }
+
+/* PANEL */
+.panel { background: var(--raised); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+.p-head { background: var(--base); color: #F4EFE7; padding: 14px 16px 12px; display: grid; gap: 12px; }
+.p-title { display: flex; align-items: center; gap: 10px; }
+.p-title svg { width: 28px; height: 24px; flex: none; }
+.p-title h2 { font-size: 17px; font-weight: 700; letter-spacing: .01em; }
+.p-title .sp { flex: 1; }
+.icon-btn { background: transparent; border: 1px solid #4A4036; color: #B5A797; border-radius: 6px; width: 30px; height: 30px; display: grid; place-items: center; }
+.icon-btn:hover { color: #F4EFE7; border-color: #B5A797; }
+.summary { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: #B5A797; }
+.summary b { color: #F4EFE7; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: baseline; }
+.dot.run { background: #6FCB93; box-shadow: 0 0 0 3px rgba(111,203,147,.22); }
+.dot.load { background: var(--brass); }
+.dot.err { background: #F2877F; }
+.dot.off { background: #8C8070; }
+
+.tabs { display: flex; gap: 2px; padding: 0 8px; background: var(--base); overflow-x: auto; }
+.tab { background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 9px; color: #B5A797; font-weight: 500; font-size: 13px; white-space: nowrap; }
+.tab .n { font-variant-numeric: tabular-nums; opacity: .8; margin-left: 4px; }
+.tab[aria-selected="true"] { color: #F4EFE7; border-bottom-color: var(--ember); }
+
+.p-tools { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.search { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--ground); color: var(--fg); border-radius: 6px; padding: 7px 10px; font: inherit; }
+.chips { display: flex; gap: 6px; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 10px; font-size: 12px; color: var(--fg2); }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--raised); border-color: var(--fg); }
+
+.list { list-style: none; margin: 0; padding: 0; max-height: 520px; overflow-y: auto; }
+.group { padding: 10px 16px 6px; font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--fg2); background: var(--ground); border-bottom: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); position: relative; }
+.row:hover { background: var(--row-hover); }
+.row .name { font-weight: 600; overflow-wrap: anywhere; }
+.row .meta { color: var(--fg2); font-size: 12.5px; display: block; }
+.status { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px 3px 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: block; }
+.s-run { color: var(--ok); background: var(--ok-bg); }
+.s-run i { animation: pulse 2s infinite; }
+.s-load { color: var(--warn-ink); background: var(--warn-bg); }
+.s-err { color: var(--err); background: var(--err-bg); }
+.s-off { color: var(--idle); background: var(--idle-bg); }
+@keyframes pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .s-run i { animation: none; } }
+.scope { font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; color: var(--fg2); }
+.kebab { background: transparent; border: 1px solid transparent; border-radius: 6px; width: 32px; height: 32px; font-size: 18px; line-height: 1; color: var(--fg2); }
+.kebab:hover, .kebab[aria-expanded="true"] { border-color: var(--line); background: var(--raised); color: var(--fg); }
+.row.dim .name { color: var(--fg2); }
+
+.ico { width: 30px; height: 30px; border-radius: 7px; background: var(--idle-bg); display: grid; place-items: center; font: 800 12px var(--f-display); color: var(--fg2); }
+.ico.a { background: var(--ember); color: var(--on-ember); }
+.ico.b { background: var(--brass); color: var(--on-ember); }
+
+/* context menu */
+.menu { position: absolute; right: 16px; top: calc(100% - 6px); z-index: 5; min-width: 188px; background: var(--raised); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 4px; }
+.menu[hidden] { display: none; }
+.menu button { display: flex; width: 100%; align-items: center; gap: 10px; background: none; border: 0; padding: 8px 10px; border-radius: 5px; text-align: left; }
+.menu button:hover, .menu button:focus-visible { background: var(--row-hover); }
+.menu svg { width: 16px; height: 16px; flex: none; color: var(--fg2); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+.menu .danger { color: var(--err); }
+.menu .danger svg { color: var(--err); }
+.menu kbd { margin-left: auto; font: 11px var(--f-body); color: var(--fg2); }
+.confirm { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; background: var(--err-bg); color: var(--err); border-radius: 6px; padding: 8px 12px; font-size: 13px; }
+.confirm button { border-radius: 5px; padding: 4px 12px; border: 1px solid currentColor; background: transparent; color: inherit; font-weight: 600; }
+.confirm .go { background: var(--err); color: var(--raised); }
+
+.p-foot { display: flex; justify-content: space-between; gap: 8px; padding: 10px 16px; font-size: 12px; color: var(--fg2); background: var(--ground); }
+.btn { background: var(--ember); color: var(--on-ember); border: 0; border-radius: 6px; padding: 6px 14px; font-weight: 600; }
+
+/* SPEC SIDE */
+.spec { display: grid; gap: 28px; min-width: 0; }
+.spec h3 { font-size: 15px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg2); }
+.states { display: grid; gap: 8px; }
+.states > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.states p { margin: 0; color: var(--fg2); }
+.states strong { color: var(--fg); font-weight: 600; }
+.menuspec { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.menuspec > div { background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.menuspec b { display: block; margin-bottom: 4px; }
+.menuspec p { margin: 0; color: var(--fg2); font-size: 13px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.sw { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; font-size: 12px; display: flex; gap: 8px; align-items: center; background: var(--raised); }
+.sw i { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); }
+.note { color: var(--fg2); max-width: 60ch; margin: 0; }
+</style>
+
+<header class="board-head">
+  <div>
+    <h1>Loaded Panel</h1>
+    <p>Everything this session loaded, with live status and a short menu per item. Docked as a side pane and opened by the ✻ button or <code>/loaded</code>.</p>
+  </div>
+  <button class="theme" id="theme" type="button">Toggle theme</button>
+</header>
+
+<main class="board">
+  <section class="panel" aria-label="Loaded panel">
+    <div class="p-head">
+      <div class="p-title">
+        <svg viewBox="0 0 48 42" aria-hidden="true"><rect x="2" y="30" width="44" height="6" rx="2" fill="#E4632D"/><rect x="6" y="22" width="36" height="6" rx="2" fill="#E4632D" opacity=".8"/><rect x="10" y="14" width="28" height="6" rx="2" fill="#C9A227"/><rect x="16" y="6" width="16" height="6" rx="2" fill="#C9A227" opacity=".65"/></svg>
+        <h2>Loaded</h2><span class="sp"></span>
+        <button class="icon-btn" type="button" aria-label="Refresh" title="Refresh">↻</button>
+        <button class="icon-btn" type="button" aria-label="Close" title="Close">✕</button>
+      </div>
+      <div class="summary" id="summary"></div>
+    </div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="p-tools">
+      <input class="search" id="q" type="search" placeholder="Filter by name" aria-label="Filter by name">
+      <div class="chips" id="chips">
+        <button class="chip" type="button" data-f="run" aria-pressed="false">Running</button>
+        <button class="chip" type="button" data-f="err" aria-pressed="false">Issues</button>
+      </div>
+    </div>
+    <ul class="list" id="list"></ul>
+    <div class="p-foot"><span>Scope: this project + user config</span><span id="updated">Updated just now</span></div>
+  </section>
+
+  <aside class="spec">
+    <div>
+      <h3>Status per item</h3>
+      <div class="states">
+        <div><span class="status s-run"><i></i>Running</span><p><strong>Loaded and active.</strong> A connected MCP server, a tool the model can call now, a plugin with hooks firing.</p></div>
+        <div><span class="status s-load"><i></i>Loaded</span><p><strong>Registered, nothing running.</strong> A skill or command that is available but not in use right now.</p></div>
+        <div><span class="status s-err"><i></i>Error</span><p><strong>Failed to load or connect.</strong> The row shows the reason; Info opens the full message.</p></div>
+        <div><span class="status s-off"><i></i>Disabled</span><p><strong>Installed but switched off.</strong> Dimmed row. Settings offers Enable.</p></div>
+      </div>
+    </div>
+    <div>
+      <h3>Context menu (⋯)</h3>
+      <div class="menuspec">
+        <div><b>Settings</b><p>Opens this item's options: enable or disable, scope, and its config values.</p></div>
+        <div><b>Tutorial</b><p>Short how-to: what it does and one example prompt to try.</p></div>
+        <div><b>Info</b><p>Name, version, source path, tools it adds, last error.</p></div>
+        <div><b>Remove</b><p>Uninstalls or disconnects. Asks inline first and says what stops working.</p></div>
+      </div>
+    </div>
+    <div>
+      <h3>Brand kit applied</h3>
+      <div class="swatches">
+        <span class="sw"><i style="background:#F4EFE7"></i>ground</span>
+        <span class="sw"><i style="background:#221E1A"></i>base</span>
+        <span class="sw"><i style="background:#E4632D"></i>ember</span>
+        <span class="sw"><i style="background:#C9A227"></i>brass</span>
+        <span class="sw">Archivo · Public Sans · Rubik</span>
+      </div>
+      <p class="note" style="margin-top:10px">Ember marks the selected tab and primary actions only. Status uses its own green, amber and red so it never competes with the brand color.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+var ICONS = {
+  gear: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></svg>',
+  book: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3.5C4.5 2.5 6.5 2.7 8 4c1.5-1.3 3.5-1.5 6-.5v9c-2.5-1-4.500-.8-6 .5-1.500-1.300-3.500-1.500-6-.5z"/><path d="M8 4v9"/></svg>',
+  info: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v4M8 4.7v.1"/></svg>',
+  trash: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.6 9h6.800l.6-9"/></svg>'
+};
+/* example rows taken from the real session */
+var DATA = {
+  Plugins: [
+    {g:'Plugins', n:'ai-toolbox', m:'v0.4 · 5 skills · 2 agents', s:'run', sc:'user', i:'a'},
+    {g:'Plugins', n:'anthropic-skills', m:'43 skills', s:'run', sc:'user', i:'a'},
+    {g:'Plugins', n:'cowork-plugin-management', m:'2 skills', s:'load', sc:'user', i:'a'},
+    {g:'Mods', n:'loaded-monitor', m:'Hot reloaded · 1 command · 2 hooks', s:'run', sc:'session', i:'b'},
+    {g:'Mods', n:'look-and-feel', m:'amitkuzi-mods · theme hooks', s:'load', sc:'user', i:'b'},
+    {g:'Plugins', n:'amit-toolbox-adversary', m:'Failed to load: manifest not found', s:'err', sc:'project', i:'a'}
+  ],
+  Skills: [
+    {g:'Skills', n:'git-conventions', m:'Branch and commit rules for D:\\Development', s:'load', sc:'project'},
+    {g:'Skills', n:'graphify', m:'Knowledge graph for any input', s:'load', sc:'user'},
+    {g:'Skills', n:'stage-gate', m:'End-of-stage review loop', s:'load', sc:'user'},
+    {g:'Skills', n:'anthropic-skills:adversary', m:'Adversarial QA after changes', s:'run', sc:'user'},
+    {g:'Skills', n:'wayfinder', m:'Disabled in settings', s:'off', sc:'user'}
+  ],
+  Tools: [
+    {g:'Built-in', n:'Bash', m:'Run shell commands', s:'run', sc:'built-in'},
+    {g:'Built-in', n:'Edit', m:'Exact string replacement', s:'run', sc:'built-in'},
+    {g:'Built-in', n:'Workflow', m:'Multi-agent scripts', s:'load', sc:'built-in'}
+  ],
+  MCP: [
+    {g:'Connected', n:'Blender', m:'26 tools', s:'run', sc:'user'},
+    {g:'Connected', n:'claude-in-chrome', m:'22 tools', s:'run', sc:'user'},
+    {g:'Connected', n:'freecad', m:'17 tools', s:'run', sc:'project'},
+    {g:'Connected', n:'Slack', m:'27 tools · connector 1348a263', s:'run', sc:'account'},
+    {g:'Needs attention', n:'ai_toolbox_decider', m:'Connecting… retry in 5s', s:'err', sc:'project'}
+  ],
+  Agents: [
+    {g:'Running now', n:'No agents running', m:'Spawned agents appear here while they work', s:'off', sc:'', empty:true}
+  ]
+};
+var state = {tab:'Plugins', q:'', f:null, openMenu:null, confirm:null, removed:{}};
+var LABEL = {run:'Running', load:'Loaded', err:'Error', off:'Disabled'};
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function all(){ var a=[]; Object.keys(DATA).forEach(function(t){ DATA[t].forEach(function(r,i){ if(!state.removed[t+i] && !r.empty) a.push(r); }); }); return a; }
+
+function render(){
+  var a = all(), c = {run:0, load:0, err:0, off:0};
+  a.forEach(function(r){ c[r.s]++; });
+  document.getElementById('summary').innerHTML =
+    '<span><i class="dot run"></i><b>'+c.run+'</b> running</span><span><i class="dot load"></i><b>'+c.load+'</b> loaded</span><span><i class="dot err"></i><b>'+c.err+'</b> issues</span><span><i class="dot off"></i><b>'+c.off+'</b> disabled</span>';
+  document.getElementById('tabs').innerHTML = Object.keys(DATA).map(function(t){
+    var n = DATA[t].filter(function(r,i){ return !state.removed[t+i] && !r.empty; }).length;
+    return '<button class="tab" role="tab" data-t="'+t+'" aria-selected="'+(t===state.tab)+'">'+t+'<span class="n">'+n+'</span></button>';
+  }).join('');
+  var rows = '', last = null;
+  DATA[state.tab].forEach(function(r, i){
+    var key = state.tab+i;
+    if (state.removed[key]) return;
+    if (state.q && r.n.toLowerCase().indexOf(state.q) < 0) return;
+    if (state.f === 'run' && r.s !== 'run') return;
+    if (state.f === 'err' && r.s !== 'err') return;
+    if (r.g !== last) { rows += '<li class="group">'+esc(r.g)+'</li>'; last = r.g; }
+    var ini = esc(r.n.replace(/^[^a-z0-9]*/i,'').slice(0,2).toUpperCase());
+    rows += '<li class="row'+(r.s==='off'?' dim':'')+'">'+
+      '<span class="ico '+(r.i||'')+'" aria-hidden="true">'+ini+'</span>'+
+      '<span><span class="name">'+esc(r.n)+'</span><span class="meta">'+esc(r.m)+'</span></span>'+
+      '<span><span class="status s-'+r.s+'"><i></i>'+LABEL[r.s]+'</span>'+(r.sc?' <span class="scope">'+esc(r.sc)+'</span>':'')+'</span>'+
+      (r.empty ? '<span></span>' : '<button class="kebab" type="button" data-k="'+key+'" aria-haspopup="menu" aria-expanded="'+(state.openMenu===key)+'" aria-label="Actions for '+esc(r.n)+'">⋯</button>')+
+      (state.openMenu===key ? '<div class="menu" role="menu">'+
+        '<button role="menuitem" data-a="Settings">'+ICONS.gear+'Settings</button>'+
+        '<button role="menuitem" data-a="Tutorial">'+ICONS.book+'Tutorial</button>'+
+        '<button role="menuitem" data-a="Info">'+ICONS.info+'Info</button><hr>'+
+        '<button role="menuitem" class="danger" data-a="Remove">'+ICONS.trash+'Remove</button></div>' : '')+
+      (state.confirm===key ? '<div class="confirm"><span>Remove '+esc(r.n)+'? Its tools and skills stop working in this session.</span><button class="go" data-a="ok">Remove</button><button data-a="no">Cancel</button></div>' : '')+
+      '</li>';
+  });
+  if (!rows) rows = '<li class="row"><span></span><span class="meta">Nothing matches this filter.</span></li>';
+  document.getElementById('list').innerHTML = rows;
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(b){ b.setAttribute('aria-pressed', String(state.f===b.dataset.f)); });
+}
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-t]'), k = e.target.closest('[data-k]'), a = e.target.closest('[data-a]'), ch = e.target.closest('.chip');
+  if (t) { state.tab = t.dataset.t; state.openMenu = null; state.confirm = null; }
+  else if (ch) { state.f = state.f === ch.dataset.f ? null : ch.dataset.f; }
+  else if (k) { state.openMenu = state.openMenu === k.dataset.k ? null : k.dataset.k; state.confirm = null; }
+  else if (a) {
+    var act = a.dataset.a;
+    if (act === 'Remove') { state.confirm = state.openMenu; state.openMenu = null; }
+    else if (act === 'ok') { state.removed[state.confirm] = true; state.confirm = null; }
+    else if (act === 'no') { state.confirm = null; }
+    else { state.openMenu = null; }
+  }
+  else { state.openMenu = null; }
+  render();
+});
+document.getElementById('q').addEventListener('input', function(e){ state.q = e.target.value.toLowerCase(); render(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { state.openMenu = null; state.confirm = null; render(); } });
+document.getElementById('theme').addEventListener('click', function(){
+  var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+});
+state.openMenu = 'Plugins3';  /* resting state shows one open menu */
+render();
+</script>
