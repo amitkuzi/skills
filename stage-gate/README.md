@@ -9,10 +9,16 @@ starts.
 Works with Claude (claude.ai, Claude Code, Claude API) and any other agent platform that supports
 the open Agent Skills standard.
 
+**Version:** 1.1.0 — **Released:** 2026-10-26 (canonical source: `metadata` in `SKILL.md`)
+
 ## What it does
 
 Runs automatically at the end of every development stage/milestone, without being asked:
 
+0. **Refactor pass** — runs the [`refactor`](../refactor) skill once on the stage's own diff:
+   story-like orchestrators, engine/accessor split, unified duplication, Clean Code + SOLID.
+   Behavior-preserving and verified before the review starts, so reviewers and the demo see the
+   code that will ship. Requires the `refactor` skill to be installed alongside.
 1. **Two validation tracks, every iteration** — a correctness/adversary track (same attack surface
    as `anthropic-skills:adversary`: correctness, regressions, security, standards compliance) and a
    usability/main-use-case track (actually run the thing and exercise its primary flows, not just

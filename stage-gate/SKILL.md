@@ -1,6 +1,9 @@
 ---
 name: stage-gate
-description: "Mandatory end-of-stage checkpoint for any multi-stage development mission. Runs an independent adversarial review AND a usability/main-use-case pass, scores 0-100, fixes and re-tests in a loop until the score clears 90 with no blocker/critical, logs every iteration, then runs a live demo and stops for the human's explicit approval before the next stage starts. Use automatically at the end of every development stage/milestone — do not wait to be asked."
+description: "Mandatory end-of-stage checkpoint for any multi-stage development mission. Runs a behavior-preserving refactor pass (the `refactor` skill) on the stage's code, then an independent adversarial review AND a usability/main-use-case pass, scores 0-100, fixes and re-tests in a loop until the score clears 90 with no blocker/critical, logs every iteration, then runs a live demo and stops for the human's explicit approval before the next stage starts. Use automatically at the end of every development stage/milestone — do not wait to be asked."
+metadata:
+  version: 1.1.0
+  released: 2026-10-26
 ---
 
 # Stage gate
@@ -12,8 +15,9 @@ pass, a fix-and-retest loop with a numeric bar, a written log, and a live demo t
 approve before the mission continues.
 
 This skill composes with, and does not replace, `anthropic-skills:adversary` (the general QA/repair
-loop this borrows its scoring rubric from) and the `run` skill (used for the demo step). Any
-language-specific standards skill (e.g. `csharp-standards`) still applies to whatever fixes get made.
+loop this borrows its scoring rubric from), the `refactor` skill (used for the refactor pass) and
+the `run` skill (used for the demo step). Any language-specific standards skill (e.g.
+`csharp-standards`) still applies to the refactor pass and to whatever fixes get made.
 
 ## When this runs
 
@@ -52,26 +56,40 @@ mode this exists to catch.
      user-facing surface yet (pure backend plumbing), the "usability" track becomes "does the
      next consumer of this code (the next stage, or a documented interface) actually get what it
      needs" — state that explicitly rather than skipping the track silently.
-2. **Run both tracks.** Use an independent agent with fresh context for the adversary track
+2. **Refactor pass (once per gate, before the first review iteration).** Invoke the `refactor`
+   skill on the code this stage added or changed — the stage's diff, nothing outside it:
+   - Public / main / interface functions become story-like orchestrations; engine logic is split
+     from accessor I/O; repeated code is unified; Clean Code + SOLID applied per function.
+   - It is **behavior-preserving**: take the baseline first (tests, plus a characterization
+     snapshot where tests are thin), refactor in small green steps, and re-verify with identical
+     output before continuing. A refactor that changes behavior is reverted, not "fixed forward".
+   - Bugs it uncovers are not fixed inside the refactor — they become findings for step 3.
+   - Public contracts the stage committed to (APIs, CLI flags, file formats) stay frozen unless
+     the stage's acceptance criteria say otherwise.
+   - If the stage has no code (docs, config, research), skip the pass and say so in the log.
+   The review tracks then run on the refactored code, so reviewers and the demo see what will
+   actually ship. In later iterations, fixes follow the same rules (the `refactor` checklist is
+   part of the maintainability attack surface) — don't run a second full refactor pass.
+3. **Run both tracks.** Use an independent agent with fresh context for the adversary track
    (per the guardrail above). The usability track can be run directly — it's execution, not
    judgement-under-bias — but its results still feed the same score.
-3. **Score 0-100** using the `adversary` skill's rubric: start at 100, subtract blocker 40 /
+4. **Score 0-100** using the `adversary` skill's rubric: start at 100, subtract blocker 40 /
    critical 25 / high 12 / medium 5 / low 1 per finding across BOTH tracks combined; never score
    above 90 while any blocker/critical remains open.
-4. **Fix every safe, in-scope finding** (both tracks), then re-run whichever validations each fix
+5. **Fix every safe, in-scope finding** (both tracks), then re-run whichever validations each fix
    touches — rebuild/retest for code fixes, re-exercise the affected use case for usability fixes.
-5. **Log the iteration** (see Logging below) before deciding whether to repeat.
-6. **Repeat** steps 2-5 until the score is **> 90** and there is no open blocker/critical. There is
+6. **Log the iteration** (see Logging below) before deciding whether to repeat.
+7. **Repeat** steps 3-6 until the score is **> 90** and there is no open blocker/critical. There is
    no fixed minimum iteration count — a stage that scores 95 clean on iteration 1 does not need
    three more iterations manufactured to hit a quota; a stage stuck at 70 needs as many honest
    iterations as it takes. What's mandatory is that every iteration that actually ran gets logged,
    and that the loop does not stop below the bar.
-7. **Demo.** Once the bar is cleared, run a live demo of the stage's actual deliverable — start the
+8. **Demo.** Once the bar is cleared, run a live demo of the stage's actual deliverable — start the
    real service/app/CLI (via the `run` skill if the project has one, otherwise the project's own
    documented startup command) and walk through the main use case(s) with real output, not a
    description of what it would do. This is for the human, not for you — show it, don't just say
    it passed.
-8. **Stop and ask for approval.** After the demo, explicitly ask the human to approve moving to the
+9. **Stop and ask for approval.** After the demo, explicitly ask the human to approve moving to the
    next stage. Do not begin next-stage work in the same turn as the demo. A vague "looks good" in
    passing does not count if the user's attention was on something else — if there's any doubt,
    ask directly ("approve moving to Stage N+1?").
@@ -80,8 +98,13 @@ mode this exists to catch.
 
 One log file per stage, created on the stage's first gate run and appended to on every iteration —
 suggested path `Team_workspace/logs/stage-gate/<stage-id>.md` (adjust to the project's own logging
-convention if one already exists, e.g. this project may already have `Team_workspace/logs/`). Each
-iteration entry records:
+convention if one already exists, e.g. this project may already have `Team_workspace/logs/`).
+
+The first entry records the refactor pass: files in scope, the function map (public function →
+orchestration steps and their roles), duplications unified, baseline vs. after verification with
+real output, and anything deliberately not refactored (or "skipped — no code in this stage").
+
+Each iteration entry records:
 
 - Iteration number, timestamp, score.
 - Findings from both tracks (severity, evidence, fix applied or why not fixed).
@@ -101,5 +124,7 @@ The final entry additionally records the demo's outcome and the human's approval
 - Do not silently skip the usability track because the stage "is just backend" — state the
   narrower interpretation (next-consumer readiness) instead of dropping the track.
 - Do not proceed to the next stage's work without an explicit approval captured in the log.
+- Do not let the refactor pass reach outside the stage's diff, change behavior, or silently fix
+  bugs — out-of-scope cleanup goes in a backlog note; bugs go through the scored findings.
 - Do not let this gate become the excuse for scope creep — findings get fixed within the stage's
   existing scope; a good idea for later goes in a backlog note, not into this stage's diff.
