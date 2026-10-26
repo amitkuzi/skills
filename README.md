@@ -15,6 +15,7 @@ Each skill is a self-contained folder with a `SKILL.md`, its own `README.md`, an
 | [`grill-me`](./grill-me) | Relentless, structured interview that stress-tests a plan or decision before you act on it. **Sourced from [mattpocock/skills](https://github.com/mattpocock/skills)**, used unmodified. | MIT © Matt Pocock |
 | [`loaded-monitor`](./loaded-monitor) | Claude Code mod: panel listing loaded plugins, skills, tools and MCP servers with status and a per-item menu (in progress). | MIT © Amit Kuzi |
 | [`prompt-score`](./prompt-score) | Scores every prompt 1-100 for prompt-engineering quality, with an actions menu (breakdown, tips, rewrite, history). Claude Code mod plus a Codex skill. | MIT © Amit Kuzi |
+| [`refactor`](./refactor) | Behavior-preserving refactoring: Clean Code + SOLID on every function, public functions as story-like orchestrations, pure engines split from I/O accessors, duplication unified. | MIT © Amit Kuzi |
 | [`report`](./report) | Produces a structured, sourced Hebrew report (status / research / decision / post-mortem / periodic) from connected tools and the web. | MIT © Amit Kuzi |
 | [`slant3d`](./slant3d) | Audits and adapts CAD/mesh models for repeatable production FDM, with explicit approval gates, assembly checks, orientation proposals, and local FreeCAD/Blender analysis. | MIT © Amit Kuzi |
 | [`stage-gate`](./stage-gate) | Mandatory end-of-stage checkpoint for multi-stage dev missions — adversary + usability review, score-and-fix loop to >90, iteration log, live demo, hard stop for human approval before the next stage. | MIT © Amit Kuzi |
@@ -54,6 +55,7 @@ skills/
   adhd-hebrew/         SKILL.md, README.md, LICENSE
   csharp-standards/     SKILL.md, README.md, LICENSE, references/*.md
   grill-me/              SKILL.md, README.md, LICENSE
+  refactor/              SKILL.md, README.md, LICENSE, references/*.md
   report/                SKILL.md, README.md, LICENSE
   slant3d/               SKILL.md, README.md, LICENSE, agents/, docs/, references/, scripts/
   stage-gate/            SKILL.md, README.md, LICENSE
