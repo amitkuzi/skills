@@ -8,3 +8,66 @@ change control to modern normal control
  report result after each iteration 
  commit localy each iteration so can test each one myself 
  you have permition to download and install enging localy 
+
+
+
+
+doom 
+write a doom 3d clone using c# and godot , and a neo fascist steampunk style Graphics ,
+change control to modern normal control amd ability to use gamepad 
+ use adversary agent to test the result and giv a score . dont stop until you get a 90% + score . agen test not only correctness of code but also desige on visuals game ux and playability 
+ report result after each iteration in a way it could be continue from that 
+ commit localy each iteration so can test each one myself 
+ you have permition to download and install enging localy 
+ 
+ 
+ 
+ 
+ 
+ kuzidrive
+ 
+ i like to create a free to use clone to onrdrive gdrive box and so 
+it sould have client for all operating system ( that will be able to attche floder to cloud storage and have auto sync
+is should have a we interface 
+it sould have a configurable multi coulude or local storage backing this up for each user 
+there will be a wey to configure each client to support his document policy by his internal policy or govement policy 
+
+
+i like that the usage will be free but i like to make mony from support and storage resaleing 
+                 
+
+you have a team of buidniss development personal and product manager . 
+you will start with a reserch of this domain . what solution are there what gaps are there what document storage policy are there . so i can find a niiche and build a product requierment to start from .
+
+the product wuill start from me . i will use it to remove my dependency of one drive and gdrive and will continue from threre 
+
+grilll me for question of data you still need to understand 
+
+
+4
+
+
+canvas tophat designe 
+
+you are to design a new top Cover for the elegoo centauri carbon with the canvas extension 
+the top hat help me keep chamber temperature while printing engineering materials like PA-CF
+
+the top hat should also make room for the PTFE tube from the canvas to the printhead have a enough space to move around 
+
+see if you can migrate the spool holder from the right side of the printer to the top of the printer save space , use the base spools bracket supplied as they use the return function to collect the remain filament and prevent entanglements 
+
+you can use instruction from elegoo web site
+you can use free cad and blender installed localy and you can usee my account on onshape 
+
+https://cad.onshape.com/documents/0821f6ead676fa00eb8e46ab/w/cbfb237b732ed679ffc32cb1/e/729d7acac7e5414a8ad81408 is a cad model of centauri carbon and canvas extention 
+
+make design simple and functional 
+make design simple for 3d printing (minimum supports , and use chamfer and fillet to privet sharp corners
+griil-me for details 
+make desigen iterative and use adversary agent to check your success and the quality of the design
+
+
+
+
+
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "ssh -t root@centauri 'tail -f /board-resource/log /board-resource/log* /tmp/klippy.log 2>/dev/null'"
