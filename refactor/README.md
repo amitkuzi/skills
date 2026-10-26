@@ -3,7 +3,7 @@
 An [Agent Skill](https://agentskills.io) for behavior-preserving refactoring that makes code
 simple, human, readable, debuggable and maintainable.
 
-**Version:** 1.0.0 — **Released:** 2026-10-26 (canonical source: `metadata` in `SKILL.md`)
+**Version:** 1.1.0 — **Released:** 2026-10-26 (canonical source: `metadata` in `SKILL.md`)
 
 ## What it does
 

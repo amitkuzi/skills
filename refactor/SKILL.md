@@ -3,7 +3,7 @@ name: refactor
 description: Behavior-preserving refactoring that makes code simple, human, readable, debuggable and maintainable — Clean Code and SOLID (Uncle Bob) applied to every function, public/main/interface functions turned into story-like orchestration functions built from small well-named calls, pure "engine" logic separated from "accessor" I/O (DB, storage, network, screen rendering), and repeated code unified into small helpers. Use whenever the user asks to refactor, clean up, simplify, humanize, untangle, "make readable/maintainable", split a long function, remove duplication, or review code for clean-code/SOLID — in any language — even if they don't name this skill.
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   released: 2026-10-26
 ---
 
@@ -47,6 +47,12 @@ Follow these steps in order. Steps 3–6 are the core of the skill.
   typical cases, empty/whitespace, boundaries (every `>=`/`<` threshold), non-English text, very
   long input — and save the output as JSON. After the refactor, run the same harness on the new file
   and byte-compare. Identical output is the proof of "behavior unchanged".
+  Include invalid inputs too and record the exception type and parameter name, not just results.
+  Per stack: Node/TS — a `.mjs` script that imports the file (Node 22+ strips types); .NET — a
+  scratch console project with a `ProjectReference` to the target `.csproj`, serializing results
+  with `System.Text.Json`; Python — a script that imports the module and `json.dumps` results.
+- Check whether the target lives in a **git submodule** or nested repo — tests, status and the
+  eventual commit belong to that repo, not the outer one.
 - Look for **mirrored copies** of the code (ports to another language, duplicated scripts, comments
   like "keep in sync with X"). Either refactor them the same way or list them in the report as
   now structurally out of sync.
@@ -143,13 +149,24 @@ Highlights:
 - **Boy Scout ("polite code") rule:** leave every touched function cleaner and kinder to the next
   reader than you found it — consistent formatting, obvious names, no surprises.
 
-### 8. Make it debuggable
+### 8. Watch for silent semantic shifts
+Rewrites that look equivalent often aren't. Check each one:
+- **Loop flag → LINQ/`every`/`all`:** `allBelow = true; if (x >= min) allBelow = false` equals
+  `!xs.Any(x => x >= min)`, *not* `xs.All(x => x < min)` — they differ for `NaN`.
+- **Evaluation order:** an expression that can throw or has side effects (e.g. normalizing a
+  nested collection) must stay before the guard clause it preceded.
+- **Short-circuiting** (`&&`, `||`, `??`) and floating-point operation order (`a*b/c` vs
+  `a*(b/c)`) change results; keep them literally.
+- **Dead code** (unused variables, values assigned and never read) may be deleted — it has no
+  behavior — but list each removal in the report.
+
+### 9. Make it debuggable
 - Every orchestration step is its own line with a named result → one breakpoint per step.
 - Errors carry the identifiers needed to reproduce (ids, file paths, input sizes — never secrets).
 - Avoid clever one-liners, chained ternaries and dense comprehensions where a named helper is
   clearer.
 
-### 9. Verify
+### 10. Verify
 - Re-run the same tests / build / linter as the baseline. Results must match or improve.
 - Re-read each public function aloud: if it doesn't read like a story, iterate.
 - Re-run the characterization harness and byte-compare with the baseline snapshot.
@@ -158,7 +175,7 @@ Highlights:
 - If the project ships releases, a refactor is still a source change: follow the project's
   release/version policy before publishing it.
 
-### 10. Report
+### 11. Report
 Finish with a short report:
 - **Function map:** table of public functions → the orchestration steps they now call, with each
   callee's role (Orchestrator / Engine / Accessor / Helper).
