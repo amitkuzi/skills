@@ -65,6 +65,8 @@ Builds `copilot/dist/prompt-score-copilot-<version>.zip` (Microsoft 365 Copilot 
 upload it in Teams > Apps > Manage your apps > Upload a custom app) and `consumer-prompt.txt`
 (for the personal Copilot app: `-Consumer` copies it to the clipboard and opens Copilot; paste it
 as the first message of a chat). Without Code Interpreter the score line is marked `(estimated)`.
+For a non-technical user, send only `PromptScore-Copilot-Setup-<version>.zip`: they unzip it and
+double-click `START HERE.html`, which walks them through with copy buttons (Hebrew/English).
 Step-by-step visual guide (Hebrew + English): `copilot/docs/install-manual.html` / `.pdf`,
 rebuilt with `node copilot/docs/build-manual.mjs`.
 
@@ -73,6 +75,7 @@ rebuilt with `node copilot/docs/build-manual.mjs`.
 `.claude-plugin/plugin.json` holds the version and `releaseDate`; the Copilot package, agent
 `about` reply and manual read them from there.
 
+- 0.3.0 (2026-10-27): one-file setup for non-technical users (`dist/PromptScore-Copilot-Setup-<version>.zip`: START HERE.html with copy buttons, agent package, PDF guide).
 - 0.2.0 (2026-10-27): Microsoft Copilot port (`copilot/`): agent package, consumer prompt, installer, visual manual.
 
 ## Layout

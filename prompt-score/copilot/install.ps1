@@ -1,7 +1,8 @@
 <#
   Builds the Prompt Score agent for Microsoft Copilot (Windows).
-    .\install.ps1            -> builds dist\prompt-score-copilot-<ver>.zip (Microsoft 365 Copilot agent package)
-                                and dist\consumer-prompt.txt, then shows how to upload the package
+    .\install.ps1            -> builds dist\prompt-score-copilot-<ver>.zip (Microsoft 365 Copilot agent package),
+                                dist\consumer-prompt.txt and dist\PromptScore-Copilot-Setup-<ver>.zip (the one file
+                                to hand a non-technical user: START HERE.html, the agent package, the PDF guide)
     .\install.ps1 -Consumer  -> also copies the consumer prompt to the clipboard and opens Copilot
     .\install.ps1 -NoOpen    -> build only, open nothing
   Version and release date come from ..\.claude-plugin\plugin.json (the one canonical source).
@@ -80,6 +81,28 @@ function Build-AgentPackage($release, $instructions) {
   $zip
 }
 
+function Build-EasySetup($release, $agentZip, $instructions) {
+  # One zip for non-technical users: a start page with copy buttons, the agent package and the PDF guide
+  $folderName = 'Prompt Score for Copilot'
+  $root = Join-Path $dist 'setup'
+  $folder = Join-Path $root $folderName
+  $agentName = 'PromptScore-Microsoft365-Copilot.zip'
+  Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+  New-Item -ItemType Directory -Force $folder | Out-Null
+  Copy-Item $agentZip (Join-Path $folder $agentName)
+  $manual = Join-Path $here 'docs\install-manual.pdf'
+  if (-not (Test-Path $manual)) { Fail 'Building the setup zip' 'docs\install-manual.pdf is missing' 'run: node copilot\docs\build-manual.mjs' }
+  Copy-Item $manual (Join-Path $folder 'Install guide.pdf')
+  $page = Expand-Template (Read-Text (Join-Path $here 'docs\start-here.src.html')) $release
+  $page = $page.Replace('{{AGENTZIP}}', $agentName).Replace('{{PROMPT}}', [Net.WebUtility]::HtmlEncode($instructions))
+  Write-Text (Join-Path $folder 'START HERE.html') $page
+  $setupZip = Join-Path $dist "PromptScore-Copilot-Setup-$($release.Version).zip"
+  Remove-Item $setupZip -Force -ErrorAction SilentlyContinue
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  [IO.Compression.ZipFile]::CreateFromDirectory($folder, $setupZip, 'Optimal', $true)
+  $setupZip
+}
+
 function Show-UploadSteps($zip) {
   Write-Host ''
   Write-Host "Agent package: $zip" -ForegroundColor Green
@@ -100,7 +123,9 @@ $instructions = New-Instructions $release
 $zip = Build-AgentPackage $release $instructions
 $promptFile = Join-Path $dist 'consumer-prompt.txt'
 Write-Text $promptFile $instructions
+$setupZip = Build-EasySetup $release $zip $instructions
 Write-Host "Prompt Score v$($release.Version) ($($release.Date)) - instructions $($instructions.Length)/$maxInstructions chars"
+Write-Host "Setup for non-technical users (send this one file): $setupZip" -ForegroundColor Green
 Show-UploadSteps $zip
 if ($Consumer) { Start-ConsumerCopilot $promptFile }
 if (-not $NoOpen) { Invoke-Item $dist }

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Score — התחילו כאן / Start here</title>
+<style>
+:root { --ground:#F4EFE7; --raised:#FFFFFF; --base:#221E1A; --fg:#221E1A; --fg2:#6E6357; --fgOnBase:#B5A797; --ember:#E4632D; --emberInk:#B8431A; --brass:#C9A227; --onEmber:#1A1210; --ok:#2F7D4F; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--fg); font: 19px/1.6 "Segoe UI", Rubik, Arial, sans-serif; }
+main { max-width: 860px; margin: auto; padding: 24px 16px 48px; }
+header { background: var(--base); color: var(--raised); border-radius: 24px; padding: 26px 28px; margin-bottom: 22px; position: relative; }
+header h1 { margin: 0 0 6px; font-size: 32px; }
+header p { margin: 0; color: var(--fgOnBase); }
+.lang { position: absolute; top: 18px; inset-inline-end: 18px; background: transparent; color: var(--raised); border: 2px solid var(--fgOnBase); border-radius: 999px; padding: 4px 14px; font: inherit; font-size: 15px; cursor: pointer; }
+h2 { font-size: 24px; margin: 0 0 12px; }
+.choose { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+.choice { background: var(--raised); border: 3px solid transparent; border-radius: 20px; padding: 20px; text-align: start; font: inherit; color: inherit; cursor: pointer; box-shadow: 0 2px 0 rgba(34,30,26,.15); }
+.choice:hover, .choice:focus-visible { border-color: var(--ember); outline: none; }
+.choice[aria-pressed="true"] { border-color: var(--ember); background: #FFF6F1; }
+.choice b { display: block; font-size: 21px; margin-bottom: 4px; }
+.choice span { color: var(--fg2); font-size: 16px; }
+.choice svg { width: 56px; height: 56px; display: block; margin-bottom: 10px; }
+.track { display: none; }
+.track.on { display: block; }
+.step { background: var(--raised); border-radius: 20px; padding: 20px 22px; margin-bottom: 14px; display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start; }
+.num { width: 52px; height: 52px; border-radius: 50%; background: var(--ember); color: var(--onEmber); font-weight: 800; font-size: 26px; display: grid; place-items: center; }
+.step h3 { margin: 4px 0 6px; font-size: 21px; }
+.step p { margin: 0 0 10px; }
+.big { display: inline-flex; align-items: center; gap: 10px; background: var(--ember); color: var(--onEmber); border: 0; border-radius: 14px; padding: 14px 26px; font: inherit; font-weight: 800; font-size: 20px; cursor: pointer; text-decoration: none; }
+.big:hover { filter: brightness(1.06); }
+.big.alt { background: var(--base); color: var(--raised); }
+.status { margin-top: 10px; font-weight: 700; min-height: 1.6em; }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--emberInk); }
+kbd { display: inline-block; border: 2px solid var(--fg2); border-bottom-width: 4px; border-radius: 8px; padding: 0 10px; background: var(--ground); font: 700 17px/1.6 "Segoe UI", Arial, sans-serif; direction: ltr; }
+.path { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; direction: ltr; justify-content: flex-end; margin: 8px 0; }
+[lang="en"] .path, .path.ltr { justify-content: flex-start; }
+.path span { background: var(--ground); border: 2px solid var(--fg2); border-radius: 10px; padding: 2px 12px; font-size: 17px; }
+.path i { font-style: normal; color: var(--ember); font-weight: 800; }
+.note { background: rgba(201,162,39,.18); border: 2px solid var(--brass); border-radius: 16px; padding: 14px 18px; margin: 10px 0 0; font-size: 17px; }
+.done { background: rgba(47,125,79,.10); border: 2px solid var(--ok); border-radius: 16px; padding: 14px 18px; font-size: 17px; }
+.example { background: var(--raised); border: 3px solid var(--ember); border-radius: 14px; padding: 10px 14px; direction: ltr; text-align: left; font-size: 16px; margin: 8px 0; }
+details { background: var(--raised); border-radius: 16px; padding: 14px 20px; margin-top: 18px; }
+summary { cursor: pointer; font-weight: 700; }
+textarea { width: 100%; min-height: 180px; direction: ltr; font: 13px/1.4 Consolas, monospace; border: 1px solid var(--fg2); border-radius: 10px; padding: 10px; margin-top: 10px; }
+footer { color: var(--fg2); font-size: 14px; margin-top: 26px; text-align: center; }
+body:not(.en) [data-en], body.en [data-he] { display: none !important; }
+@media (max-width: 640px) { .choose { grid-template-columns: 1fr; } .step { grid-template-columns: 1fr; } header h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <button class="lang" id="lang" type="button">English</button>
+  <h1 data-he>Prompt Score ל־Copilot</h1><h1 data-en>Prompt Score for Copilot</h1>
+  <p data-he>כל בקשה שתכתבו ל־Copilot תקבל ציון מ־1 עד 100 — וטיפ איך לנסח אותה טוב יותר.</p>
+  <p data-en>Every request you write to Copilot gets a score from 1 to 100 — and a tip on how to word it better.</p>
+</header>
+
+<h2 data-he>איזה Copilot יש לכם?</h2><h2 data-en>Which Copilot do you have?</h2>
+<div class="choose">
+  <button class="choice" type="button" data-track="home" aria-pressed="false">
+    <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#E4632D"/><circle cx="28" cy="22" r="8" fill="#fff"/><path d="M13 44c3-9 27-9 30 0" fill="#fff"/></svg>
+    <b data-he>Copilot רגיל</b><b data-en>Regular Copilot</b>
+    <span data-he>חשבון Microsoft אישי (Outlook.com, Hotmail) או האתר copilot.microsoft.com</span>
+    <span data-en>Personal Microsoft account (Outlook.com, Hotmail) or the copilot.microsoft.com site</span>
+  </button>
+  <button class="choice" type="button" data-track="work" aria-pressed="false">
+    <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#221E1A"/><rect x="14" y="20" width="28" height="20" rx="3" fill="#fff"/><rect x="22" y="14" width="12" height="8" rx="2" fill="none" stroke="#fff" stroke-width="3"/></svg>
+    <b data-he>Copilot בעבודה</b><b data-en>Copilot at work</b>
+    <span data-he>חשבון עבודה או לימודים (Microsoft 365, Teams)</span>
+    <span data-en>Work or school account (Microsoft 365, Teams)</span>
+  </button>
+</div>
+
+<section class="track" id="home">
+  <div class="step"><div class="num">1</div><div>
+    <h3 data-he>לחצו "העתקה"</h3><h3 data-en>Click "Copy"</h3>
+    <button class="big" type="button" data-copy="prompt"><span data-he>📋 העתקה</span><span data-en>📋 Copy</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3 data-he>פתחו את Copilot</h3><h3 data-en>Open Copilot</h3>
+    <a class="big alt" href="https://copilot.microsoft.com/" target="_blank" rel="noopener"><span data-he>פתיחת Copilot ↗</span><span data-en>Open Copilot ↗</span></a>
+    <p style="margin-top:10px" data-he>או פתחו את אפליקציית Copilot במחשב והתחילו צ'אט חדש.</p>
+    <p style="margin-top:10px" data-en>Or open the Copilot app on your computer and start a new chat.</p>
+  </div></div>
+  <div class="step"><div class="num">3</div><div>
+    <h3 data-he>הדביקו ושלחו</h3><h3 data-en>Paste and send</h3>
+    <p data-he>לחצו בתיבת הכתיבה, ואז <kbd>Ctrl</kbd> + <kbd>V</kbd> ואחר כך <kbd>Enter</kbd>.</p>
+    <p data-en>Click in the message box, then press <kbd>Ctrl</kbd> + <kbd>V</kbd> and then <kbd>Enter</kbd>.</p>
+  </div></div>
+  <div class="step"><div class="num">4</div><div>
+    <h3 data-he>זהו! כתבו כרגיל</h3><h3 data-en>Done! Write as usual</h3>
+    <p data-he>מעכשיו, בצ'אט הזה, כל תשובה תתחיל בציון. נסו לכתוב: <b>fix it</b></p>
+    <p data-en>From now on, in this chat, every answer starts with a score. Try writing: <b>fix it</b></p>
+    <div class="example"><b>Prompt score: 10/100 (weak)</b> - biggest gap: Context…</div>
+    <p class="note" data-he>⚠ זה עובד רק בצ'אט שבו הדבקתם. בצ'אט חדש — חזרו לדף הזה ובצעו שוב שלבים 1–3.</p>
+    <p class="note" data-en>⚠ This works only in the chat where you pasted it. For a new chat, come back to this page and repeat steps 1–3.</p>
+  </div></div>
+</section>
+
+<section class="track" id="work">
+  <div class="step"><div class="num">1</div><div>
+    <h3 data-he>פתחו את Teams והגיעו להעלאת אפליקציה</h3><h3 data-en>Open Teams and go to app upload</h3>
+    <div class="path"><span>Apps</span><i>›</i><span>Manage your apps</span><i>›</i><span>Upload an app</span><i>›</i><span>Upload a custom app</span></div>
+    <p data-he>בחרו את הקובץ <b dir="ltr">{{AGENTZIP}}</b> מהתיקייה הזו ולחצו <b>Add</b>.</p>
+    <p data-en>Pick the file <b>{{AGENTZIP}}</b> from this folder and click <b>Add</b>.</p>
+    <p class="note" data-he>⚠ אל תפתחו (unzip) את הקובץ הזה — מעלים אותו כמו שהוא.</p>
+    <p class="note" data-en>⚠ Do not unzip this file — upload it as it is.</p>
+  </div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3 data-he>אין לכם "Upload a custom app"?</h3><h3 data-en>No "Upload a custom app"?</h3>
+    <p data-he>זה אומר שרק צוות ה־IT יכול להתקין. העתיקו את ההודעה ושלחו להם יחד עם הקובץ.</p>
+    <p data-en>That means only your IT team can install it. Copy this message and send it to them with the file.</p>
+    <button class="big alt" type="button" data-copy="admin"><span data-he>📋 העתקת הודעה ל־IT</span><span data-en>📋 Copy message for IT</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </div></div>
+  <div class="step"><div class="num">3</div><div>
+    <h3 data-he>פתחו את הסוכן</h3><h3 data-en>Open the agent</h3>
+    <p data-he>באפליקציית Microsoft 365 Copilot (או ב־Copilot Chat) בחרו בצד <b>Agents</b> ואז <b>Prompt Score</b>. לפעמים לוקח כמה דקות עד שהוא מופיע.</p>
+    <p data-en>In the Microsoft 365 Copilot app (or Copilot Chat), pick <b>Agents</b> on the side, then <b>Prompt Score</b>. It can take a few minutes to appear.</p>
+  </div></div>
+  <div class="step"><div class="num">4</div><div>
+    <h3 data-he>בדיקה</h3><h3 data-en>Check</h3>
+    <p data-he>כתבו <b>fix it</b>. התשובה צריכה להתחיל כך:</p>
+    <p data-en>Write <b>fix it</b>. The answer should start like this:</p>
+    <div class="example"><b>Prompt score: 10/100 (weak)</b> - biggest gap: Context…</div>
+    <p class="done" data-he>✔ מעכשיו כל צ'אט עם Prompt Score מקבל ציון — אין צורך להדביק שוב.</p>
+    <p class="done" data-en>✔ From now on every chat with Prompt Score is scored — no pasting needed.</p>
+  </div></div>
+</section>
+
+<details>
+  <summary><span data-he>מה בדיוק מועתק? (לסקרנים)</span><span data-en>What exactly is copied? (for the curious)</span></summary>
+  <p data-he>ההנחיה ל־Copilot. אם הכפתור לא מעתיק: לחצו בתיבה, <kbd>Ctrl</kbd>+<kbd>A</kbd> ואז <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <p data-en>The instruction for Copilot. If the button does not copy: click in the box, then <kbd>Ctrl</kbd>+<kbd>A</kbd> and <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <textarea id="prompt" readonly>{{PROMPT}}</textarea>
+  <textarea id="admin-he" hidden>שלום, אשמח שתתקינו עבורי את סוכן Microsoft 365 Copilot המצורף ({{AGENTZIP}}, ‏Prompt Score גרסה {{VERSION}}), או שתאפשרו לי להעלות אפליקציות מותאמות ב־Teams. זה סוכן הנחיות בלבד עם Code Interpreter: הוא נותן ציון לניסוח הבקשות ואינו ניגש לנתוני הארגון. תודה!</textarea>
+  <textarea id="admin-en" hidden>Hi, could you please install the attached Microsoft 365 Copilot agent ({{AGENTZIP}}, Prompt Score version {{VERSION}}) for me, or allow me to upload custom apps in Teams? It is an instructions-only agent with Code Interpreter: it scores how requests are worded and does not access company data. Thanks!</textarea>
+</details>
+
+<p class="note" data-he>📄 רוצים מדריך מצויר מלא? פתחו את הקובץ <b dir="ltr">Install guide.pdf</b> בתיקייה הזו.</p>
+<p class="note" data-en>📄 Want the full illustrated guide? Open <b>Install guide.pdf</b> in this folder.</p>
+
+<footer>Prompt Score v{{VERSION}} · {{DATE}}</footer>
+</main>
+<script>
+(function () {
+  var body = document.body, langBtn = document.getElementById('lang');
+  function setLang(en) {
+    body.classList.toggle('en', en);
+    document.documentElement.lang = en ? 'en' : 'he';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    langBtn.textContent = en ? 'עברית' : 'English';
+    try { localStorage.setItem('ps-lang', en ? 'en' : 'he'); } catch (e) {}
+  }
+  langBtn.addEventListener('click', function () { setLang(!body.classList.contains('en')); });
+  try { if (localStorage.getItem('ps-lang') === 'en') setLang(true); } catch (e) {}
+
+  document.querySelectorAll('.choice').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.choice').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      document.querySelectorAll('.track').forEach(function (t) { t.classList.toggle('on', t.id === btn.dataset.track); });
+      document.getElementById(btn.dataset.track).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  function textFor(kind) {
+    if (kind === 'prompt') return document.getElementById('prompt').value;
+    return document.getElementById(body.classList.contains('en') ? 'admin-en' : 'admin-he').value;
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); return ok;
+  }
+  function show(status, ok) {
+    var en = body.classList.contains('en');
+    status.className = 'status ' + (ok ? 'ok' : 'err');
+    status.textContent = ok
+      ? (en ? '✔ Copied! Go to the next step.' : '✔ הועתק! עברו לשלב הבא.')
+      : (en ? 'Copy did not work: the browser blocked access to the clipboard. Open "What exactly is copied?" below, click in the box, press Ctrl+A and then Ctrl+C.'
+            : 'ההעתקה לא הצליחה: הדפדפן חסם גישה ללוח. פתחו למטה את "מה בדיוק מועתק?", לחצו בתיבה, ואז Ctrl+A ו־Ctrl+C.');
+    if (!ok) document.querySelector('details').open = true;
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = textFor(btn.dataset.copy), status = btn.parentNode.querySelector('.status');
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { show(status, true); }, function () { show(status, legacyCopy(text)); });
+      } else { show(status, legacyCopy(text)); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
