@@ -52,6 +52,29 @@ line and offer breakdown / tips / rewrite / history. Try it directly:
 `node codex/score.mjs "fix it"` (add `--json` for the breakdown).
 Not available in Codex: the in-chat badge and the band.
 
+## Microsoft Copilot (Windows)
+
+Microsoft Copilot has no skills or hooks, so the port is a declarative agent whose instructions
+embed `copilot/score.py` (same rules as `hooks/score.ts`) and run it with Code Interpreter.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:/Development/Skills/prompt-score/copilot/install.ps1
+```
+
+Builds `copilot/dist/prompt-score-copilot-<version>.zip` (Microsoft 365 Copilot agent package:
+upload it in Teams > Apps > Manage your apps > Upload a custom app) and `consumer-prompt.txt`
+(for the personal Copilot app: `-Consumer` copies it to the clipboard and opens Copilot; paste it
+as the first message of a chat). Without Code Interpreter the score line is marked `(estimated)`.
+Step-by-step visual guide (Hebrew + English): `copilot/docs/install-manual.html` / `.pdf`,
+rebuilt with `node copilot/docs/build-manual.mjs`.
+
+## Version
+
+`.claude-plugin/plugin.json` holds the version and `releaseDate`; the Copilot package, agent
+`about` reply and manual read them from there.
+
+- 0.2.0 (2026-10-27): Microsoft Copilot port (`copilot/`): agent package, consumer prompt, installer, visual manual.
+
 ## Layout
 
 | Path | Contents |
@@ -61,5 +84,7 @@ Not available in Codex: the in-chat badge and the band.
 | `hooks/score.ts`, `hooks/score.test.ts` | Scoring rules and test |
 | `types/index.d.ts` | `$.state` contract |
 | `codex/` | Codex port: `score.mjs`, `skill/prompt-score/SKILL.md`, installers |
+| `copilot/` | Microsoft Copilot port: `score.py`, instructions template, `appPackage/` templates, `install.ps1`, `docs/` manual |
 
-Keep `hooks/score.ts` and `codex/score.mjs` in sync when changing the rules.
+Keep `hooks/score.ts`, `codex/score.mjs` and `copilot/score.py` in sync when changing the rules
+(`node copilot/parity.mjs` checks the last two).

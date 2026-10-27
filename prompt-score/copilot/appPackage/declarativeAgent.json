@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.5/schema.json",
+  "version": "v1.5",
+  "name": "Prompt Score",
+  "description": "Scores every prompt 1-100 for prompt-engineering quality, names the biggest gap, and offers breakdown, tips, rewrite and history. v{{VERSION}} ({{DATE}})",
+  "instructions": "{{INSTRUCTIONS}}",
+  "capabilities": [
+    { "name": "CodeInterpreter" }
+  ],
+  "conversation_starters": [
+    { "title": "Score a prompt", "text": "Write a Python function that parses a CSV file" },
+    { "title": "Rewrite my prompt", "text": "rewrite" },
+    { "title": "Show breakdown", "text": "breakdown" },
+    { "title": "About", "text": "about" }
+  ]
+}

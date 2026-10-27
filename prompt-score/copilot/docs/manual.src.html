@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Score for Microsoft Copilot — install guide / מדריך התקנה</title>
+<style>
+/*FONTS*/
+* { box-sizing: border-box; }
+/* Palette and mark: D:\Development\amitkuzi-brandkit (colors/palette.json, logos/logo.svg), read 2026-10-26. Fonts embedded by build-manual.mjs. */
+:root { --ground:#F4EFE7; --raised:#FFFFFF; --base:#221E1A; --fg:#221E1A; --fg2:#6E6357; --fgOnBase:#B5A797; --ember:#E4632D; --emberInk:#B8431A; --brass:#C9A227; --onEmber:#1A1210; }
+body { margin: 0; background: var(--ground); color: var(--fg); font: 17px/1.55 "Public Sans", Arial, sans-serif; }
+main { max-width: 1120px; margin: auto; padding: 28px; }
+[lang="he"] { font-family: "Rubik", Arial, sans-serif; text-align: right; }
+[lang="en"] h1, [lang="en"] h2, h1[lang="en"], h2[lang="en"] { font-family: "Archivo", Arial, sans-serif; }
+h1, h2, h3, p { margin: 0 0 12px; }
+h3 { font-size: 18px; }
+header, section { margin-bottom: 22px; }
+header { background: var(--base); color: var(--raised); border-radius: 24px; padding: 30px; }
+header p { color: var(--fgOnBase); }
+.brand-mark { width: 64px; height: 56px; margin: 0 0 20px auto; }
+.notice { background: rgba(201,162,39,.19); border: 1px solid var(--brass); border-radius: 18px; color: var(--fg); padding: 18px; margin-top: 12px; }
+header .notice { background: var(--ground); margin-top: 18px; }
+header .notice p { color: var(--fg); }
+.ok { background: rgba(228,99,45,.10); border: 1px solid var(--ember); border-radius: 18px; padding: 14px 18px; margin-top: 12px; }
+.labels { direction: ltr; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-areas: "en he"; gap: 24px; }
+.labels > [lang="en"] { grid-area: en; min-width: 0; }
+.labels > [lang="he"] { grid-area: he; min-width: 0; }
+.track { background: var(--base); color: var(--raised); border-radius: 18px; padding: 16px 22px; }
+.track p { color: var(--fgOnBase); margin: 0; }
+.track h2 { margin-bottom: 4px; }
+.prerequisites, .panel { border: 1px solid var(--fg2); background: var(--raised); border-radius: 18px; padding: 22px; }
+.panel { break-inside: avoid; page-break-inside: avoid; }
+.step { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--ember); color: var(--onEmber); font-weight: bold; font-size: 26px; margin-bottom: 14px; }
+.illus { font-size: 13px; color: var(--fg2); margin: -6px 0 8px; }
+svg { display: block; width: 100%; height: auto; max-height: 300px; margin: 12px 0; }
+.scr { fill: var(--raised); stroke: var(--fg); stroke-width: 3; }
+.bar { fill: var(--base); }
+.term { fill: #2B2622; stroke: var(--fg); stroke-width: 3; }
+.soft { fill: var(--ground); stroke: var(--fg2); stroke-width: 2; }
+.hot { fill: none; stroke: var(--ember); stroke-width: 4; }
+.hotfill { fill: var(--ember); }
+.motion { fill: none; stroke: var(--fg); stroke-width: 3; }
+svg text { font: 17px "Public Sans", Arial, sans-serif; fill: var(--fg); }
+svg text.w { fill: var(--raised); }
+svg text.m { font-family: Consolas, "Courier New", monospace; font-size: 15px; fill: #F4EFE7; }
+svg text.b { font-weight: 700; }
+svg text.s { font-size: 14px; fill: var(--fg2); }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; }
+th, td { border: 1px solid var(--fg2); padding: 8px 10px; vertical-align: top; }
+th { background: var(--ground); }
+pre, code, .id { direction: ltr; unicode-bidi: isolate; }
+[lang="he"] bdi, p code { white-space: nowrap; }
+code { font-family: Consolas, "Courier New", monospace; font-size: .92em; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px 14px; background: var(--base); color: var(--ground); border-radius: 12px; text-align: left; }
+footer { border-top: 1px solid var(--fg2); color: var(--fg2); padding-top: 12px; font-size: 14px; }
+@media(max-width: 640px) { main { padding: 12px; } header { padding: 20px; } .labels { grid-template-columns: minmax(0,1fr); grid-template-areas: "he" "en"; } .panel { padding: 16px; } }
+@page { size: A4; margin: 12mm; }
+@media print { * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } body { background: var(--raised); font-size: 9.5pt; } main { padding: 0; max-width: none; } header { padding: 18px; border-radius: 18px; } .labels { grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-areas: "en he"; gap: 16px; } .panel, .prerequisites { padding: 14px; } svg { max-height: 44mm; } .track { break-after: avoid; page-break-after: avoid; } }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+<svg class="brand-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 42" role="img" aria-label="Amit Kuzi" dir="ltr">
+<title>Amit Kuzi</title><rect x="2" y="30" width="44" height="6" rx="2" fill="#E4632D"/><rect x="6" y="22" width="36" height="6" rx="2" fill="#E4632D" opacity=".8"/><rect x="10" y="14" width="28" height="6" rx="2" fill="#C9A227"/><rect x="16" y="6" width="16" height="6" rx="2" fill="#C9A227" opacity=".65"/>
+</svg>
+<div class="labels">
+<div lang="he" dir="rtl"><h1><bdi>Prompt Score</bdi> ב־<bdi>Microsoft Copilot</bdi></h1><p>מדריך התקנה חזותי · גרסה <bdi>{{VERSION}}</bdi> · <bdi>{{DATE}}</bdi></p><p>כל פרומפט מקבל ציון 1–100 לאיכות הנדסת פרומפטים, את הפער הגדול ביותר, ותפריט: פירוט, טיפים, שכתוב, היסטוריה.</p></div>
+<div lang="en" dir="ltr"><h1>Prompt Score in Microsoft&nbsp;Copilot</h1><p>Visual install guide · version {{VERSION}} · {{DATE}}</p><p>Every prompt gets a 1–100 prompt-engineering score, its biggest gap, and a menu: breakdown, tips, rewrite, history.</p></div>
+</div>
+<svg viewBox="0 0 640 150" role="img" aria-labelledby="cv-t cv-d" dir="ltr">
+<title id="cv-t">Finished state (illustration) / מצב סופי (המחשה)</title>
+<desc id="cv-d">A Copilot chat where the reply opens with a bold score line. צ'אט Copilot שבו התשובה נפתחת בשורת ציון מודגשת.</desc>
+<rect x="20" y="8" width="600" height="134" rx="14" fill="#F4EFE7" stroke="#B5A797" stroke-width="2"/>
+<rect x="360" y="22" width="240" height="34" rx="17" fill="#FFFFFF" stroke="#6E6357"/><text x="378" y="45">fix the login bug</text>
+<rect x="40" y="68" width="470" height="60" rx="12" fill="#FFFFFF" stroke="#E4632D" stroke-width="3"/>
+<text x="56" y="92" class="b">Prompt score: 20/100 (weak) - biggest gap: Context.</text>
+<text x="56" y="116" class="s">Actions: breakdown | tips | rewrite | history</text>
+</svg>
+<div class="notice labels">
+<p lang="he" dir="rtl">⚠ שני מסלולים: <b>A</b> — חשבון עבודה/בית־ספר עם Microsoft 365 Copilot (סוכן מותקן, קבוע). <b>B</b> — אפליקציית Copilot הפרטית (בלי סוכנים: מדביקים הנחיה בתחילת כל צ'אט). אם הסוכן לא יכול להריץ Python, השורה תסומן <bdi>(estimated)</bdi> והציון מקורב.</p>
+<p lang="en" dir="ltr">⚠ Two tracks: <b>A</b> — work/school account with Microsoft 365 Copilot (installed agent, permanent). <b>B</b> — personal Copilot app (no agents: paste an instruction at the start of each chat). If Copilot cannot run Python, the line is marked (estimated) and the score is approximate.</p>
+</div>
+</header>
+
+<section class="prerequisites">
+<div class="labels"><h2 lang="he" dir="rtl">דרישות ורכיבים</h2><h2 lang="en" dir="ltr">Requirements and parts</h2></div>
+<table>
+<thead><tr><th>ID</th><th lang="en" dir="ltr">Item</th><th lang="he" dir="rtl">פריט</th><th>Track / מסלול</th></tr></thead>
+<tbody>
+<tr><td class="id">R1</td><td lang="en" dir="ltr">Windows 10/11 with Windows PowerShell 5.1 (built in)</td><td lang="he" dir="rtl">‏Windows 10/11 עם Windows PowerShell 5.1 (מובנה)</td><td>A, B</td></tr>
+<tr><td class="id">R2</td><td lang="en" dir="ltr">The <code>prompt-score</code> folder (from the <code>amitkuzi/skills</code> repository)</td><td lang="he" dir="rtl">התיקייה <code>prompt-score</code> (ממאגר <code>amitkuzi/skills</code>)</td><td>A, B</td></tr>
+<tr><td class="id">R3</td><td lang="en" dir="ltr">Work/school Microsoft 365 account with Copilot, allowed to upload custom apps in Teams</td><td lang="he" dir="rtl">חשבון Microsoft 365 של עבודה/בית־ספר עם Copilot, עם הרשאה להעלות אפליקציות מותאמות ב־Teams</td><td>A</td></tr>
+<tr><td class="id">R4</td><td lang="en" dir="ltr">Personal Microsoft account and the Copilot app or copilot.microsoft.com</td><td lang="he" dir="rtl">חשבון Microsoft פרטי ואפליקציית Copilot או copilot.microsoft.com</td><td>B</td></tr>
+</tbody>
+</table>
+<div class="labels"><h3 lang="he" dir="rtl">מה הבנייה מייצרת (בתיקייה <code>copilot\dist</code>)</h3><h3 lang="en" dir="ltr">What the build produces (in <code>copilot\dist</code>)</h3></div>
+<table>
+<thead><tr><th>ID</th><th lang="en" dir="ltr">File</th><th lang="he" dir="rtl">קובץ</th></tr></thead>
+<tbody>
+<tr><td class="id">P1</td><td lang="en" dir="ltr"><code>prompt-score-copilot-{{VERSION}}.zip</code> — agent package: manifest, agent definition, 2 icons</td><td lang="he" dir="rtl"><code>prompt-score-copilot-{{VERSION}}.zip</code> — חבילת סוכן: מניפסט, הגדרת סוכן, 2 אייקונים</td></tr>
+<tr><td class="id">P2</td><td lang="en" dir="ltr"><code>consumer-prompt.txt</code> — the same instructions as text, for track B</td><td lang="he" dir="rtl"><code>consumer-prompt.txt</code> — אותן הנחיות כטקסט, למסלול B</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="panel">
+<span class="step">1</span>
+<div class="labels"><h2 lang="he" dir="rtl">בונים את החבילה</h2><h2 lang="en" dir="ltr">Build the package</h2></div>
+<p class="illus">Illustration / המחשה</p>
+<svg viewBox="0 0 640 190" role="img" aria-labelledby="s1-t s1-d" dir="ltr">
+<title id="s1-t">PowerShell runs install.ps1 / ‏PowerShell מריץ את install.ps1</title>
+<desc id="s1-d">A terminal runs the installer; an arrow leads to the dist folder holding P1 and P2. מסוף מריץ את המתקין; חץ מוביל לתיקיית dist עם P1 ו־P2.</desc>
+<rect class="term" x="10" y="10" width="390" height="170" rx="12"/><rect class="bar" x="10" y="10" width="390" height="28" rx="12"/>
+<text x="24" y="30" class="w s" style="fill:#B5A797">Windows PowerShell</text>
+<text x="24" y="66" class="m">PS D:\skills&gt; powershell -File</text>
+<text x="24" y="88" class="m">  prompt-score\copilot\install.ps1</text>
+<text x="24" y="122" class="m" style="fill:#C9A227">Prompt Score v{{VERSION}} - instructions</text>
+<text x="24" y="144" class="m" style="fill:#C9A227">Agent package: ...\dist\*.zip</text>
+<path class="motion" d="M410 95H450" marker-end="url(#ar)"/>
+<defs><marker id="ar" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto"><path d="M0 0L12 5L0 10Z" fill="#221E1A"/></marker></defs>
+<rect class="scr" x="462" y="30" width="168" height="130" rx="10"/><path d="M462 30h60l10 12h98" fill="none" stroke="#221E1A" stroke-width="3"/>
+<text x="474" y="62" class="b">dist\</text>
+<rect class="hotfill" x="476" y="76" width="18" height="22" rx="3"/><text x="502" y="93">P1 .zip</text>
+<rect class="soft" x="476" y="110" width="18" height="22" rx="3"/><text x="502" y="127">P2 .txt</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">פתחו PowerShell בתיקייה שמכילה את <bdi>prompt-score</bdi> והריצו:</p><p lang="en" dir="ltr">Open PowerShell in the folder that contains <code>prompt-score</code> and run:</p></div>
+<pre dir="ltr"><code>powershell -ExecutionPolicy Bypass -File prompt-score\copilot\install.ps1</code></pre>
+<div class="ok labels"><p lang="he" dir="rtl">✔ תוצאה: מופיעה השורה <bdi>Prompt Score v{{VERSION}} ({{DATE}})</bdi> ותיקיית <bdi>dist</bdi> נפתחת עם <bdi>P1</bdi> ו־<bdi>P2</bdi>.</p><p lang="en" dir="ltr">✔ Result: the line <code>Prompt Score v{{VERSION}} ({{DATE}})</code> appears and the <code>dist</code> folder opens with P1 and P2.</p></div>
+<div class="notice labels"><p lang="he" dir="rtl">⚠ הודעה שמתחילה ב־<bdi>failed:</bdi> מציינת מה נכשל, למה, ומה הצעד הבא — פעלו לפיה והריצו שוב. הדגל <bdi>-ExecutionPolicy Bypass</bdi> חל רק על הרצה זו.</p><p lang="en" dir="ltr">⚠ A message containing <code>failed:</code> says what failed, why, and the next step — follow it and run again. <code>-ExecutionPolicy Bypass</code> applies to this one run only.</p></div>
+</section>
+
+<section class="track">
+<div class="labels"><div lang="he" dir="rtl"><h2>מסלול A — Microsoft 365 Copilot</h2><p>חשבון עבודה/בית־ספר · שלבים 2–4</p></div><div lang="en" dir="ltr"><h2>Track A — Microsoft 365 Copilot</h2><p>Work/school account · steps 2–4</p></div></div>
+</section>
+
+<section class="panel">
+<span class="step">2</span>
+<div class="labels"><h2 lang="he" dir="rtl">מעלים את P1 ל־Teams</h2><h2 lang="en" dir="ltr">Upload P1 in Teams</h2></div>
+<p class="illus">Illustration / המחשה — menu labels can differ slightly between Teams versions</p>
+<svg viewBox="0 0 640 210" role="img" aria-labelledby="s2-t s2-d" dir="ltr">
+<title id="s2-t">Teams: Apps, Manage your apps, Upload an app / ‏Teams: אפליקציות, ניהול, העלאה</title>
+<desc id="s2-d">Teams window with the Apps rail item, then Manage your apps, then Upload an app, then Upload a custom app, highlighted in order. חלון Teams שבו מודגשים לפי הסדר: Apps, Manage your apps, Upload an app, Upload a custom app.</desc>
+<rect class="scr" x="10" y="10" width="620" height="190" rx="12"/><rect class="bar" x="10" y="10" width="620" height="28" rx="12"/><text x="24" y="30" class="w s" style="fill:#B5A797">Microsoft Teams</text>
+<rect class="soft" x="10" y="38" width="70" height="162"/>
+<rect class="hot" x="18" y="140" width="54" height="44" rx="8"/><text x="28" y="167" class="b">Apps</text>
+<text x="34" y="132" class="b" style="fill:#E4632D">a</text>
+<rect class="soft" x="96" y="140" width="180" height="40" rx="8"/><rect class="hot" x="96" y="140" width="180" height="40" rx="8"/><text x="108" y="166">Manage your apps</text><text x="250" y="132" class="b" style="fill:#E4632D">b</text>
+<rect class="soft" x="300" y="56" width="150" height="38" rx="8"/><rect class="hot" x="300" y="56" width="150" height="38" rx="8"/><text x="314" y="81">Upload an app</text><text x="456" y="50" class="b" style="fill:#E4632D">c</text>
+<rect class="scr" x="300" y="108" width="310" height="80" rx="10"/><rect class="hot" x="312" y="118" width="266" height="30" rx="6"/><text x="324" y="139">Upload a custom app</text><text x="588" y="139" class="b" style="fill:#E4632D">d</text>
+<text x="324" y="176" class="s">→ choose P1 .zip → Add</text>
+<path class="motion" d="M76 150H90" marker-end="url(#ar)"/><path class="motion" d="M280 150C292 150 292 90 296 80" marker-end="url(#ar)"/><path class="motion" d="M375 95V117" marker-end="url(#ar)"/>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">ב־Teams: <bdi>Apps</bdi> ‹ <bdi>Manage your apps</bdi> ‹ <bdi>Upload an app</bdi> ‹ <bdi>Upload a custom app</bdi> ‹ בחרו את <bdi>P1</bdi> ‹ <bdi>Add</bdi>.</p><p lang="en" dir="ltr">In Teams: Apps › Manage your apps › Upload an app › Upload a custom app › choose P1 › Add.</p></div>
+<div class="notice labels"><p lang="he" dir="rtl">⚠ אין אפשרות <bdi>Upload a custom app</bdi>? המנהל צריך לאפשר העלאת אפליקציות מותאמות, או להעלות את <bdi>P1</bdi> במרכז הניהול: <bdi>Microsoft 365 admin center › Integrated apps</bdi>.</p><p lang="en" dir="ltr">⚠ No “Upload a custom app” option? Your admin must allow custom app upload, or upload P1 in Microsoft 365 admin center › Integrated apps.</p></div>
+</section>
+
+<section class="panel">
+<span class="step">3</span>
+<div class="labels"><h2 lang="he" dir="rtl">פותחים את הסוכן ב־Copilot</h2><h2 lang="en" dir="ltr">Open the agent in Copilot</h2></div>
+<p class="illus">Illustration / המחשה</p>
+<svg viewBox="0 0 640 190" role="img" aria-labelledby="s3-t s3-d" dir="ltr">
+<title id="s3-t">Microsoft 365 Copilot: Agents list with Prompt Score / רשימת הסוכנים עם Prompt Score</title>
+<desc id="s3-d">The Copilot app side panel lists agents; Prompt Score with its gauge icon is highlighted and opens a chat with starter buttons. בחלונית הצד של Copilot מודגש הסוכן Prompt Score ונפתח צ'אט עם כפתורי פתיחה.</desc>
+<rect class="scr" x="10" y="10" width="620" height="170" rx="12"/><rect class="bar" x="10" y="10" width="620" height="28" rx="12"/><text x="24" y="30" class="w s" style="fill:#B5A797">Microsoft 365 Copilot</text>
+<rect class="soft" x="10" y="38" width="200" height="142"/><text x="24" y="64" class="b">Agents</text>
+<rect class="hot" x="20" y="76" width="180" height="40" rx="8"/>
+<rect x="28" y="82" width="28" height="28" rx="6" fill="#E4632D"/><path d="M34 102a8 8 0 1 1 16 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+<text x="64" y="102">Prompt Score</text>
+<text x="28" y="140" class="s">Researcher · Analyst …</text>
+<path class="motion" d="M204 96H236" marker-end="url(#ar)"/>
+<text x="250" y="70" class="b">Prompt Score</text>
+<rect class="soft" x="250" y="88" width="160" height="32" rx="16"/><text x="264" y="109" class="s">Score a prompt</text>
+<rect class="soft" x="420" y="88" width="190" height="32" rx="16"/><text x="434" y="109" class="s">Rewrite my prompt</text>
+<rect class="soft" x="250" y="134" width="360" height="34" rx="17"/><text x="266" y="156" class="s">Message Prompt Score…</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">באפליקציית <bdi>Microsoft 365 Copilot</bdi> (או ב־<bdi>Copilot Chat</bdi>): בחלונית <bdi>Agents</bdi> בחרו <bdi>Prompt Score</bdi>. ייתכן שיחלפו כמה דקות עד שיופיע.</p><p lang="en" dir="ltr">In the Microsoft 365 Copilot app (or Copilot Chat): in the Agents pane, pick Prompt Score. It may take a few minutes to appear.</p></div>
+</section>
+
+<section class="panel">
+<span class="step">4</span>
+<div class="labels"><h2 lang="he" dir="rtl">בדיקה סופית</h2><h2 lang="en" dir="ltr">Final check</h2></div>
+<p class="illus">Illustration / המחשה — expected text comes from the scorer itself</p>
+<svg viewBox="0 0 640 170" role="img" aria-labelledby="s4-t s4-d" dir="ltr">
+<title id="s4-t">Send "fix it", get the score line / שולחים fix it ומקבלים שורת ציון</title>
+<desc id="s4-d">The user sends "fix it"; the reply begins with "Prompt score: 10/100 (weak)" and an Actions line. המשתמש שולח fix it; התשובה מתחילה בשורת הציון 10/100 ושורת Actions.</desc>
+<rect class="scr" x="10" y="10" width="620" height="150" rx="12"/>
+<rect x="470" y="24" width="140" height="34" rx="17" fill="#F4EFE7" stroke="#6E6357"/><text x="510" y="47">fix it</text>
+<rect x="28" y="72" width="560" height="74" rx="12" fill="#FFFFFF" stroke="#E4632D" stroke-width="3"/>
+<text x="44" y="98" class="b">Prompt score: 10/100 (weak) - biggest gap: Context.</text>
+<text x="44" y="122" class="s">Say why, what exists today, and point at files, links or code.</text>
+<text x="44" y="140" class="s">Actions: breakdown | tips | rewrite | history</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">שלחו <bdi>fix it</bdi>. התשובה צריכה להתחיל ב־<bdi>Prompt score: 10/100 (weak)</bdi>. שלחו <bdi>about</bdi> — צפוי <bdi>v{{VERSION}}</bdi> מתאריך <bdi>{{DATE}}</bdi>.</p><p lang="en" dir="ltr">Send <code>fix it</code>. The reply should start with <code>Prompt score: 10/100 (weak)</code>. Send <code>about</code> — expect v{{VERSION}}, released {{DATE}}.</p></div>
+<div class="notice labels"><p lang="he" dir="rtl">⚠ מופיע <bdi>(estimated)</bdi>? Code Interpreter לא זמין ברישיון/בסביבה שלכם; הציון מקורב. גרסה ישנה מופיעה? העלו שוב את <bdi>P1</bdi> החדש — כל בנייה מעלה גרסה רק אם עודכן <bdi>plugin.json</bdi>.</p><p lang="en" dir="ltr">⚠ Seeing (estimated)? Code Interpreter is not available in your license/tenant; the score is approximate. Old version shown? Upload the new P1 again — a rebuild only changes the version when plugin.json was bumped.</p></div>
+</section>
+
+<section class="track">
+<div class="labels"><div lang="he" dir="rtl"><h2>מסלול B — Copilot הפרטי</h2><p>חשבון Microsoft אישי · שלבים 5–6 (אחרי שלב 1)</p></div><div lang="en" dir="ltr"><h2>Track B — personal Copilot</h2><p>Personal Microsoft account · steps 5–6 (after step 1)</p></div></div>
+</section>
+
+<section class="panel">
+<span class="step">5</span>
+<div class="labels"><h2 lang="he" dir="rtl">מעתיקים את ההנחיה ופותחים את Copilot</h2><h2 lang="en" dir="ltr">Copy the instruction and open Copilot</h2></div>
+<p class="illus">Illustration / המחשה</p>
+<svg viewBox="0 0 640 160" role="img" aria-labelledby="s5-t s5-d" dir="ltr">
+<title id="s5-t">-Consumer copies P2 to the clipboard and opens Copilot / הדגל -Consumer מעתיק את P2 ללוח ופותח את Copilot</title>
+<desc id="s5-d">Terminal with the -Consumer flag; arrows to a clipboard holding P2 and to the Copilot window. מסוף עם הדגל ‎-Consumer; חצים ללוח שמכיל את P2 ולחלון Copilot.</desc>
+<rect class="term" x="10" y="10" width="330" height="140" rx="12"/>
+<text x="24" y="50" class="m">PS&gt; ...\install.ps1 -Consumer</text>
+<text x="24" y="84" class="m" style="fill:#C9A227">Consumer prompt copied to</text>
+<text x="24" y="106" class="m" style="fill:#C9A227">the clipboard.</text>
+<path class="motion" d="M346 60H392" marker-end="url(#ar)"/><path class="motion" d="M346 110C470 140 500 140 520 124" marker-end="url(#ar)"/>
+<rect class="soft" x="400" y="20" width="80" height="80" rx="8"/><rect class="scr" x="420" y="12" width="40" height="16" rx="4"/><text x="422" y="70" class="b">P2</text>
+<rect class="scr" x="500" y="40" width="130" height="80" rx="10"/><text x="512" y="70" class="b">Copilot</text><text x="512" y="96" class="s">new chat</text>
+</svg>
+<pre dir="ltr"><code>powershell -ExecutionPolicy Bypass -File prompt-score\copilot\install.ps1 -Consumer</code></pre>
+<div class="labels"><p lang="he" dir="rtl">הסקריפט בונה, מעתיק את <bdi>P2</bdi> ללוח ופותח את <bdi>copilot.microsoft.com</bdi>. אפשר גם לפתוח את אפליקציית Copilot ידנית.</p><p lang="en" dir="ltr">The script builds, copies P2 to the clipboard and opens copilot.microsoft.com. You can open the Copilot app yourself instead.</p></div>
+</section>
+
+<section class="panel">
+<span class="step">6</span>
+<div class="labels"><h2 lang="he" dir="rtl">מדביקים בתחילת צ'אט חדש</h2><h2 lang="en" dir="ltr">Paste at the start of a new chat</h2></div>
+<p class="illus">Illustration / המחשה</p>
+<svg viewBox="0 0 640 150" role="img" aria-labelledby="s6-t s6-d" dir="ltr">
+<title id="s6-t">Ctrl+V then Enter in a new Copilot chat / Ctrl+V ואז Enter בצ'אט חדש</title>
+<desc id="s6-d">The message box shows the pasted instruction; Ctrl+V and Enter keys are drawn below it. תיבת ההודעה מציגה את ההנחיה שהודבקה; מתחת מצוירים המקשים Ctrl+V ו־Enter.</desc>
+<rect class="scr" x="10" y="10" width="620" height="130" rx="12"/>
+<rect class="hot" x="30" y="26" width="580" height="44" rx="22"/><text x="50" y="54" class="s">You are Prompt Score v{{VERSION}} ({{DATE}}). You score every…</text>
+<rect class="soft" x="200" y="88" width="90" height="40" rx="8"/><text x="214" y="114" class="b">Ctrl+V</text>
+<text x="304" y="114" class="b">→</text>
+<rect class="soft" x="330" y="88" width="90" height="40" rx="8"/><text x="350" y="114" class="b">Enter</text>
+</svg>
+<div class="labels"><p lang="he" dir="rtl">הדביקו (<bdi>Ctrl+V</bdi>) ושלחו (<bdi>Enter</bdi>). מעכשיו, באותו צ'אט, כל פרומפט מקבל ציון. בדקו עם <bdi>fix it</bdi> כמו בשלב 4.</p><p lang="en" dir="ltr">Paste (Ctrl+V) and send (Enter). From now on, in that chat, every prompt is scored. Check with <code>fix it</code> as in step 4.</p></div>
+<div class="notice labels"><p lang="he" dir="rtl">⚠ ההנחיה תקפה רק לצ'אט הנוכחי — בכל צ'אט חדש מדביקים שוב. Copilot הפרטי לא תמיד מריץ Python, ולכן הציון עשוי להיות מסומן <bdi>(estimated)</bdi>.</p><p lang="en" dir="ltr">⚠ The instruction lasts for the current chat only — paste it again in every new chat. Personal Copilot does not always run Python, so the score may be marked (estimated).</p></div>
+</section>
+
+<footer class="labels">
+<p lang="he" dir="rtl">Prompt Score <bdi>v{{VERSION}}</bdi>, שוחרר <bdi>{{DATE}}</bdi>. מקורות: Microsoft — <bdi>Declarative agent manifest v1.5</bdi> ו־<bdi>Teams app manifest v1.19</bdi> (סכמות JSON, נקראו ונבדקו מול החבילה ב־<bdi>2026-10-26</bdi>). שמות התפריטים ב־Teams וב־Copilot משתנים בין גרסאות ולא צולמו — האיורים סכמטיים. צבעים, סמל וגופנים: <bdi>amitkuzi-brandkit</bdi>. אין שיוך ל־LEGO, ‏IKEA או Microsoft.</p>
+<p lang="en" dir="ltr">Prompt Score v{{VERSION}}, released {{DATE}}. Sources: Microsoft declarative agent manifest v1.5 and Teams app manifest v1.19 (JSON schemas, read and validated against the package on 2026-10-26). Teams and Copilot menu labels vary between versions and were not captured — drawings are schematic. Palette, mark and fonts: amitkuzi-brandkit. No affiliation with LEGO, IKEA or Microsoft.</p>
+</footer>
+</main>
+</body>
+</html>
