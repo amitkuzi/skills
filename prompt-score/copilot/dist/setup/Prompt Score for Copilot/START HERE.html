@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Score — התחילו כאן / Start here</title>
+<style>
+:root { --ground:#F4EFE7; --raised:#FFFFFF; --base:#221E1A; --fg:#221E1A; --fg2:#6E6357; --fgOnBase:#B5A797; --ember:#E4632D; --emberInk:#B8431A; --brass:#C9A227; --onEmber:#1A1210; --ok:#2F7D4F; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--fg); font: 19px/1.6 "Segoe UI", Rubik, Arial, sans-serif; }
+main { max-width: 860px; margin: auto; padding: 24px 16px 48px; }
+header { background: var(--base); color: var(--raised); border-radius: 24px; padding: 26px 28px; margin-bottom: 22px; position: relative; }
+header h1 { margin: 0 0 6px; font-size: 32px; }
+header p { margin: 0; color: var(--fgOnBase); }
+.lang { position: absolute; top: 18px; inset-inline-end: 18px; background: transparent; color: var(--raised); border: 2px solid var(--fgOnBase); border-radius: 999px; padding: 4px 14px; font: inherit; font-size: 15px; cursor: pointer; }
+h2 { font-size: 24px; margin: 0 0 12px; }
+.choose { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+.choice { background: var(--raised); border: 3px solid transparent; border-radius: 20px; padding: 20px; text-align: start; font: inherit; color: inherit; cursor: pointer; box-shadow: 0 2px 0 rgba(34,30,26,.15); }
+.choice:hover, .choice:focus-visible { border-color: var(--ember); outline: none; }
+.choice[aria-pressed="true"] { border-color: var(--ember); background: #FFF6F1; }
+.choice b { display: block; font-size: 21px; margin-bottom: 4px; }
+.choice span { color: var(--fg2); font-size: 16px; }
+.choice svg { width: 56px; height: 56px; display: block; margin-bottom: 10px; }
+.track { display: none; }
+.track.on { display: block; }
+.step { background: var(--raised); border-radius: 20px; padding: 20px 22px; margin-bottom: 14px; display: grid; grid-template-columns: 52px 1fr; gap: 16px; align-items: start; }
+.num { width: 52px; height: 52px; border-radius: 50%; background: var(--ember); color: var(--onEmber); font-weight: 800; font-size: 26px; display: grid; place-items: center; }
+.step h3 { margin: 4px 0 6px; font-size: 21px; }
+.step p { margin: 0 0 10px; }
+.big { display: inline-flex; align-items: center; gap: 10px; background: var(--ember); color: var(--onEmber); border: 0; border-radius: 14px; padding: 14px 26px; font: inherit; font-weight: 800; font-size: 20px; cursor: pointer; text-decoration: none; }
+.big:hover { filter: brightness(1.06); }
+.big.alt { background: var(--base); color: var(--raised); }
+.status { margin-top: 10px; font-weight: 700; min-height: 1.6em; }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--emberInk); }
+kbd { display: inline-block; border: 2px solid var(--fg2); border-bottom-width: 4px; border-radius: 8px; padding: 0 10px; background: var(--ground); font: 700 17px/1.6 "Segoe UI", Arial, sans-serif; direction: ltr; }
+.path { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; direction: ltr; justify-content: flex-end; margin: 8px 0; }
+[lang="en"] .path, .path.ltr { justify-content: flex-start; }
+.path span { background: var(--ground); border: 2px solid var(--fg2); border-radius: 10px; padding: 2px 12px; font-size: 17px; }
+.path i { font-style: normal; color: var(--ember); font-weight: 800; }
+.note { background: rgba(201,162,39,.18); border: 2px solid var(--brass); border-radius: 16px; padding: 14px 18px; margin: 10px 0 0; font-size: 17px; }
+.done { background: rgba(47,125,79,.10); border: 2px solid var(--ok); border-radius: 16px; padding: 14px 18px; font-size: 17px; }
+.example { background: var(--raised); border: 3px solid var(--ember); border-radius: 14px; padding: 10px 14px; direction: ltr; text-align: left; font-size: 16px; margin: 8px 0; }
+details { background: var(--raised); border-radius: 16px; padding: 14px 20px; margin-top: 18px; }
+.plan-b { margin: 0 0 14px; }
+.plan-b .big { margin-top: 4px; }
+.field { margin: 10px 0; }
+.field .status { min-height: 0; margin-top: 4px; }
+.big.small { font-size: 16px; padding: 8px 16px; margin-inline-start: 8px; }
+summary { cursor: pointer; font-weight: 700; }
+textarea { width: 100%; min-height: 180px; direction: ltr; font: 13px/1.4 Consolas, monospace; border: 1px solid var(--fg2); border-radius: 10px; padding: 10px; margin-top: 10px; }
+footer { color: var(--fg2); font-size: 14px; margin-top: 26px; text-align: center; }
+body:not(.en) [data-en], body.en [data-he] { display: none !important; }
+@media (max-width: 640px) { .choose { grid-template-columns: 1fr; } .step { grid-template-columns: 1fr; } header h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <button class="lang" id="lang" type="button">English</button>
+  <h1 data-he>Prompt Score ל־Copilot</h1><h1 data-en>Prompt Score for Copilot</h1>
+  <p data-he>כל בקשה שתכתבו ל־Copilot תקבל ציון מ־1 עד 100 — וטיפ איך לנסח אותה טוב יותר.</p>
+  <p data-en>Every request you write to Copilot gets a score from 1 to 100 — and a tip on how to word it better.</p>
+</header>
+
+<h2 data-he>איזה Copilot יש לכם?</h2><h2 data-en>Which Copilot do you have?</h2>
+<div class="choose">
+  <button class="choice" type="button" data-track="home" aria-pressed="false">
+    <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#E4632D"/><circle cx="28" cy="22" r="8" fill="#fff"/><path d="M13 44c3-9 27-9 30 0" fill="#fff"/></svg>
+    <b data-he>Copilot רגיל</b><b data-en>Regular Copilot</b>
+    <span data-he>חשבון Microsoft אישי (Outlook.com, Hotmail) או האתר copilot.microsoft.com</span>
+    <span data-en>Personal Microsoft account (Outlook.com, Hotmail) or the copilot.microsoft.com site</span>
+  </button>
+  <button class="choice" type="button" data-track="work" aria-pressed="false">
+    <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#221E1A"/><rect x="14" y="20" width="28" height="20" rx="3" fill="#fff"/><rect x="22" y="14" width="12" height="8" rx="2" fill="none" stroke="#fff" stroke-width="3"/></svg>
+    <b data-he>Copilot בעבודה</b><b data-en>Copilot at work</b>
+    <span data-he>חשבון עבודה או לימודים (Microsoft 365, Teams)</span>
+    <span data-en>Work or school account (Microsoft 365, Teams)</span>
+  </button>
+</div>
+
+<section class="track" id="home">
+  <div class="step"><div class="num">1</div><div>
+    <h3 data-he>לחצו "העתקה"</h3><h3 data-en>Click "Copy"</h3>
+    <button class="big" type="button" data-copy="custom"><span data-he>📋 העתקה</span><span data-en>📋 Copy</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3 data-he>פתחו את ההגדרות של Copilot</h3><h3 data-en>Open Copilot settings</h3>
+    <a class="big alt" href="https://copilot.microsoft.com/" target="_blank" rel="noopener"><span data-he>פתיחת Copilot ↗</span><span data-en>Open Copilot ↗</span></a>
+    <p style="margin-top:10px" data-he>היכנסו עם החשבון שלכם, לחצו על תמונת הפרופיל או על השם שלכם, ואז:</p>
+    <p style="margin-top:10px" data-en>Sign in, click your profile picture or name, then:</p>
+    <div class="path"><span>Settings</span><i>›</i><span>Personalization</span><i>›</i><span>Custom instructions</span></div>
+    <p class="note" data-he>השמות יכולים להיות מעט שונים, למשל "הגדרות" ‹ "התאמה אישית" ‹ "הוראות מותאמות אישית". ודאו שההתאמה האישית מופעלת (On).</p>
+    <p class="note" data-en>The names can differ slightly. Make sure Personalization is turned On.</p>
+  </div></div>
+  <div class="step"><div class="num">3</div><div>
+    <h3 data-he>הדביקו ושמרו</h3><h3 data-en>Paste and save</h3>
+    <p data-he>לחצו בתיבה של ההוראות, <kbd>Ctrl</kbd> + <kbd>V</kbd>, ואז <b>Save / שמירה</b>.</p>
+    <p data-en>Click in the instructions box, press <kbd>Ctrl</kbd> + <kbd>V</kbd>, then <b>Save</b>.</p>
+  </div></div>
+  <div class="step"><div class="num">4</div><div>
+    <h3 data-he>בדיקה בצ'אט חדש</h3><h3 data-en>Check in a new chat</h3>
+    <p data-he>פתחו צ'אט <b>חדש</b> וכתבו: <b>fix it</b>. התשובה צריכה להתחיל בציון:</p>
+    <p data-en>Open a <b>new</b> chat and write: <b>fix it</b>. The answer should start with a score:</p>
+    <div class="example"><b>Prompt score: 10/100 (weak)</b> - biggest gap: Context…</div>
+    <p class="done" data-he>✔ זהו — מעכשיו כל צ'אט חדש מקבל ציון, בלי להדביק שוב.</p>
+    <p class="note" data-he>⚠ חשבון עבודה בלי "Custom instructions"? חזרו למעלה ובחרו <b>Copilot בעבודה</b>.</p>
+    <p class="done" data-en>✔ Done — from now on every new chat is scored, no pasting again.</p>
+    <p class="note" data-en>⚠ Work account without "Custom instructions"? Go back up and pick <b>Copilot at work</b>.</p>
+  </div></div>
+  <details class="plan-b">
+    <summary><span data-he>אין "Custom instructions" או שהטקסט לא נכנס? (גיבוי)</span><span data-en>No "Custom instructions", or the text does not fit? (backup)</span></summary>
+    <p data-he>אפשר להפעיל לצ'אט אחד בכל פעם: העתיקו, הדביקו כהודעה הראשונה בצ'אט חדש ושלחו. Copilot יענה <b dir="ltr">✅ Prompt Score is on</b>. בכל צ'אט חדש חוזרים על זה.</p>
+    <p data-en>You can turn it on for one chat at a time: copy, paste it as the first message of a new chat and send. Copilot replies ✅ Prompt Score is on. Repeat in every new chat.</p>
+    <button class="big alt" type="button" data-copy="prompt"><span data-he>📋 העתקה לצ'אט אחד</span><span data-en>📋 Copy for one chat</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </details>
+</section>
+
+<section class="track" id="work">
+  <p class="done" data-he>✔ בלי צוות IT: בונים את הסוכן לבד, פעם אחת, ב־Copilot. אחר כך כל צ'אט עם הסוכן <b>Prompt Score</b> מקבל ציון.</p>
+  <p class="done" data-en>✔ No IT needed: build the agent yourself, once, in Copilot. Then every chat with the <b>Prompt Score</b> agent is scored.</p>
+  <div class="step"><div class="num">1</div><div>
+    <h3 data-he>פותחים "סוכן חדש"</h3><h3 data-en>Open "New agent"</h3>
+    <a class="big alt" href="https://m365.cloud.microsoft/chat" target="_blank" rel="noopener"><span data-he>פתיחת Microsoft 365 Copilot ↗</span><span data-en>Open Microsoft 365 Copilot ↗</span></a>
+    <p style="margin-top:10px" data-he>היכנסו עם חשבון העבודה (או פתחו את אפליקציית Microsoft 365 Copilot), ובצד:</p>
+    <p style="margin-top:10px" data-en>Sign in with the work account (or open the Microsoft 365 Copilot app), and on the side:</p>
+    <div class="path"><span>Agents</span><i>›</i><span>New agent</span><i>›</i><span>Skip to configure</span></div>
+    <p class="note" data-he>⚠ אם Copilot מתחיל לשאול "מה הסוכן צריך לעשות?" — חפשו את הכפתור <b dir="ltr">Skip to configure</b> או את הלשונית <b dir="ltr">Configure</b>.</p>
+    <p class="note" data-en>⚠ If Copilot starts asking "what should the agent do?", look for the <b>Skip to configure</b> button or the <b>Configure</b> tab.</p>
+  </div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3 data-he>ממלאים 3 שדות — העתקה והדבקה</h3><h3 data-en>Fill 3 fields — copy and paste</h3>
+    <p data-he>לכל שדה: לוחצים "העתקה", לוחצים בשדה ב־Copilot, <kbd>Ctrl</kbd> + <kbd>V</kbd>.</p>
+    <p data-en>For each field: click "Copy", click in the field in Copilot, <kbd>Ctrl</kbd> + <kbd>V</kbd>.</p>
+    <div class="field"><b dir="ltr">Name</b> <button class="big alt small" type="button" data-copy="agentname"><span data-he>📋 העתקת שם</span><span data-en>📋 Copy name</span></button>
+    <div class="status" role="status" aria-live="polite"></div></div>
+    <div class="field"><b dir="ltr">Description</b> <button class="big alt small" type="button" data-copy="agentdesc"><span data-he>📋 העתקת תיאור</span><span data-en>📋 Copy description</span></button>
+    <div class="status" role="status" aria-live="polite"></div></div>
+    <div class="field"><b dir="ltr">Instructions</b> <button class="big small" type="button" data-copy="agent"><span data-he>📋 העתקת הוראות</span><span data-en>📋 Copy instructions</span></button>
+    <div class="status" role="status" aria-live="polite"></div></div>
+  </div></div>
+  <div class="step"><div class="num">3</div><div>
+    <h3 data-he>מפעילים את המתג ויוצרים</h3><h3 data-en>Turn on the switch and create</h3>
+    <p data-he>תחת <b dir="ltr">Capabilities</b> הדליקו את <b dir="ltr">Create documents, charts, and code</b> (זה נותן ציון מדויק). אחר כך לחצו <b dir="ltr">Create</b>.</p>
+    <p data-en>Under <b>Capabilities</b> turn on <b>Create documents, charts, and code</b> (this makes the score exact). Then click <b>Create</b>.</p>
+  </div></div>
+  <div class="step"><div class="num">4</div><div>
+    <h3 data-he>בדיקה</h3><h3 data-en>Check</h3>
+    <p data-he>בצד, תחת <b dir="ltr">Agents</b>, בחרו <b>Prompt Score</b> וכתבו <b>fix it</b>. התשובה צריכה להתחיל כך:</p>
+    <p data-en>On the side, under <b>Agents</b>, pick <b>Prompt Score</b> and write <b>fix it</b>. The answer should start like this:</p>
+    <div class="example"><b>Prompt score: 10/100 (weak)</b> - biggest gap: Context…</div>
+    <p class="done" data-he>✔ קבוע: בכל פעם שבוחרים בסוכן Prompt Score, כל הודעה מקבלת ציון. צ'אט רגיל עם Copilot (בלי לבחור בסוכן) לא מקבל ציון.</p>
+    <p class="done" data-en>✔ Permanent: whenever you pick the Prompt Score agent, every message is scored. A regular Copilot chat (without picking the agent) is not scored.</p>
+    <p class="note" data-he>⚠ מופיע <b dir="ltr">(estimated)</b>? המתג משלב 3 כבוי או לא זמין בארגון — הציון מקורב, אבל עובד.</p>
+    <p class="note" data-en>⚠ Seeing <b>(estimated)</b>? The switch from step 3 is off or not available in your organization — the score is approximate, but it works.</p>
+  </div></div>
+  <details class="plan-b">
+    <summary><span data-he>אין "New agent"? (חסום בארגון)</span><span data-en>No "New agent"? (blocked by your organization)</span></summary>
+    <p data-he>אפשר לבקש מצוות ה־IT להתקין את הקובץ המוכן <b dir="ltr">PromptScore-Microsoft365-Copilot.zip</b> שבתיקייה הזו (לא לפתוח אותו). העתיקו את ההודעה ושלחו להם יחד עם הקובץ. אם יש לכם הרשאה בעצמכם: <span dir="ltr">Teams › Apps › Manage your apps › Upload an app › Upload a custom app</span>.</p>
+    <p data-en>Ask your IT team to install the ready file <b>PromptScore-Microsoft365-Copilot.zip</b> from this folder (do not unzip it). Copy this message and send it to them with the file. If you have permission yourself: Teams › Apps › Manage your apps › Upload an app › Upload a custom app.</p>
+    <button class="big alt small" type="button" data-copy="admin"><span data-he>📋 העתקת הודעה ל־IT</span><span data-en>📋 Copy message for IT</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </details>
+</section>
+
+<details id="copied">
+  <summary><span data-he>מה בדיוק מועתק? (לסקרנים)</span><span data-en>What exactly is copied? (for the curious)</span></summary>
+  <p data-he>התיבות: הטקסט הקבוע ל־Copilot הפרטי, הטקסט לצ'אט אחד, וההוראות לסוכן בעבודה. אם כפתור לא מעתיק: לחצו בתיבה, <kbd>Ctrl</kbd>+<kbd>A</kbd> ואז <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <p data-en>Boxes: the permanent text for personal Copilot, the one-chat text, and the instructions for the work agent. If a button does not copy: click in the box, then <kbd>Ctrl</kbd>+<kbd>A</kbd> and <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <textarea id="custom" readonly>Prompt Score v0.6.0 (2026-10-27): start EVERY reply with one bold line &quot;**Prompt score: N/100 (label) - biggest gap: CHECK. TIP**&quot; that scores my message (skip messages starting with &quot;/&quot;), then answer normally in my language.
+Score = sum of 8 checks (Hebrew words count too):
+Goal 15: action verb (write, fix, create, explain, compare...) 10, else 3; +5 if 8+ words, +2 if 4+.
+Context 15: why / background / current state 8; +7 for a file name, `code` or a link.
+Constraints 15: must, only, never, avoid, without, limit...
+Output format 15: format, table, list, json, steps, summary, language...
+Success criteria 15: test, verify, done when, example, expected...
+Specifics 10: digit 4, code-style name or version 3, &quot;quoted text&quot; 3.
+Structure 10: bullet or numbered lines 6, several lines 2, heading or &quot;label:&quot; line 2.
+Length 5: under 4 words 0, under 12 2, up to 400 5, longer 3.
+Labels: excellent 80+, good 60+, fair 40+, weak. Biggest gap = check that lost most points (first on ties); TIP = one short fix.
+Below 80 add &quot;Actions: breakdown | tips | rewrite | history&quot;. If I send only one of those words: breakdown = table of points per check; tips = fixes for lost checks; rewrite = my last prompt rewritten as a well-engineered prompt in a code block, with its score; history = scores in this chat and their average. &quot;about&quot; = &quot;Prompt Score v0.6.0, 2026-10-27&quot;.</textarea>
+  <textarea id="prompt" readonly>You are now Prompt Score v0.6.0 (2026-10-27). This message is only the setup: reply with just &quot;✅ Prompt Score is on — write your request.&quot; (in Hebrew if I write in Hebrew) and nothing else.
+
+From my next message on, for every message I send (except messages that start with &quot;/&quot; or are just one of: breakdown, tips, rewrite, history, about):
+1. Score my message from 1 to 100 with the rules below.
+2. Start your reply with one bold line: **Prompt score: N/100 (label) - biggest gap: CHECK. TIP**
+   Label: excellent 80+, good 60+, fair 40+, weak below 40.
+3. If the score is below 80, add the line: Actions: breakdown | tips | rewrite | history
+4. Then answer my message normally, in my language.
+
+Rules. W = number of words. &quot;Contains&quot; = contains one of the words (English as whole words, any case).
+- Clear goal (15): 10 if it contains create, build, write, fix, add, implement, refactor, review, analyze, analyse, compare, design, explain, generate, plan, debug, summarize, summarise, convert, find, צור, כתוב, תקן, הוסף, בנה, נתח, השווה, תכנן, הסבר, סכם, מצא; otherwise 3. Plus 5 if W &gt;= 8, or plus 2 if W &gt;= 4. Tip: Open with one concrete action verb and the single outcome you want.
+- Context (15): 8 if it contains because, currently, so that, background, context, we are, i am, project, existing, goal is, כי, כרגע, הקשר, פרויקט, מטרה. Plus 7 if it has a file name (like name.txt), text in `backticks` or a web link. Tip: Say why, what exists today, and point at files, links or code.
+- Constraints (15): 15 if it contains must, should, only, don&#39;t, do not, never, avoid, without, at most, at least, limit, max, min, חייב, רק, אסור, בלי, הימנע, מקסימום, מינימום. Tip: State must / must-not rules: scope, tech, style, limits.
+- Output format (15): 15 if it contains format, table, list, bullet, json, markdown, yaml, csv, steps, section, sections, summary, diff, code block, in hebrew, in english, טבלה, רשימה, בעברית, באנגלית, פורמט, סעיפים. Tip: Say what the answer should look like: format, language, length.
+- Success criteria / examples (15): 15 if it contains test, verify, done when, acceptance, criteria, example, e.g., for instance, expected, success, בדיקה, אימות, קריטריון, לדוגמה, צפוי. Tip: Define &quot;done&quot; or give an example of good output.
+- Specifics (10): 4 if it has a digit. Plus 3 if it has a camelCase word, a snake_case word, &quot;()&quot; or a version number like 2.1. Plus 3 if it has text in quotes. Tip: Use names, numbers, versions and quoted literals instead of vague words.
+- Structure (10): 6 if a line starts with a bullet (- or *) or a number (1. or 1)). Plus 2 if it has more than one line. Plus 2 if it has a # heading, a line that ends with &quot;:&quot; or a &lt;tag&gt;. Tip: Break it up: bullets, numbered steps, or labelled sections.
+- Length fit (5): 0 if W &lt; 4, 2 if W &lt; 12, 5 if W &lt;= 400, otherwise 3. Tip: &quot;Too terse: add detail.&quot; if W &lt; 12, otherwise &quot;Trim anything that is not needed.&quot;
+Score = the sum (at least 1). Biggest gap = the check that lost the most points; on a tie, the one listed first.
+
+Actions, when I send the word:
+- breakdown: a short table of every check with points got / max.
+- tips: the tip of every check that lost points.
+- rewrite: rewrite my last scored message as a well-engineered prompt (clear goal, context, constraints, output format, success criteria), keeping my intent and language. Show it in a code block with its score, and offer to run it.
+- history: the scores so far in this chat and their average.
+- about: &quot;Prompt Score v0.6.0, released 2026-10-27. A fast keyword and structure check, not a judgment of the idea.&quot;</textarea>
+  <textarea id="agent" readonly>You are Prompt Score v0.6.0 (2026-10-27). You score every user prompt from 1 to 100 for prompt-engineering quality (100 = best engineered), then answer it normally.
+
+# For every user message
+Skip messages that start with &quot;/&quot; or that only pick an action (breakdown, tips, rewrite, history, about).
+1. Use Code Interpreter: run the Python scorer below, then call score(T) where T is the user&#39;s message copied exactly, as a triple-quoted raw string. Never edit, translate or trim T.
+2. Start your reply with the one line from result[&#39;line&#39;], in bold. Example: **Prompt score: 72/100 (good) - biggest gap: Output format. Say what the answer should look like: format, language, length.**
+3. Below 80, add the line: Actions: breakdown | tips | rewrite | history
+4. Then answer the user&#39;s request normally, in the user&#39;s language.
+If Code Interpreter is unavailable, apply the same rules by hand and prefix the line with &quot;(estimated)&quot;.
+
+# Actions
+- breakdown: a short table of name, got / max for every check.
+- tips: the tip of every check that lost points.
+- rewrite: rewrite the user&#39;s last scored prompt as a well-engineered prompt (clear goal, context, constraints, output format, success criteria), keeping their intent and language. Show it in a code block, score the rewrite, and offer to run it.
+- history: list the scores given in this conversation and their average.
+- about: say &quot;Prompt Score v0.6.0, released 2026-10-27&quot;, and that the score is a fast keyword and structure heuristic, not a judgment of the idea.
+
+# Scorer (Python, run as is)
+```python
+import re,sys,json
+def h(t,p,f=re.I|re.A):return re.search(p,t,f) is not None
+def score(text):
+ t=text.strip();w=len(t.split());c=[]
+ def a(n,m,g,tip):c.append({&#39;name&#39;:n,&#39;max&#39;:m,&#39;got&#39;:max(0,min(m,round(g))),&#39;tip&#39;:tip})
+ a(&#39;Clear goal&#39;,15,(10 if h(t,r&quot;\b(create|build|write|fix|add|implement|refactor|review|analy[sz]e|compare|design|explain|generate|plan|debug|summari[sz]e|convert|find)\b&quot;) or h(t,&#39;(צור|כתוב|תקן|הוסף|בנה|נתח|השווה|תכנן|הסבר|סכם|מצא)&#39;) else 3)+(5 if w&gt;=8 else 2 if w&gt;=4 else 0),&#39;Open with one concrete action verb and the single outcome you want.&#39;)
+ a(&#39;Context&#39;,15,(8 if h(t,r&quot;\b(because|currently|so that|background|context|we are|i am|project|existing|goal is)\b&quot;) or h(t,&#39;(כי|כרגע|הקשר|פרויקט|מטרה)&#39;) else 0)+(7 if h(t,r&quot;[\w./\\-]+\.\w{1,5}\b|`[^`]+`|https?://&quot;) else 0),&#39;Say why, what exists today, and point at files, links or code.&#39;)
+ a(&#39;Constraints&#39;,15,15 if h(t,r&quot;\b(must|should|only|don&#39;t|do not|never|avoid|without|at most|at least|limit|max|min)\b&quot;) or h(t,&#39;(חייב|רק|אסור|בלי|הימנע|מקסימום|מינימום)&#39;) else 0,&#39;State must / must-not rules: scope, tech, style, limits.&#39;)
+ a(&#39;Output format&#39;,15,15 if h(t,r&quot;\b(format|table|list|bullet|json|markdown|yaml|csv|steps|sections?|summary|diff|code block|in hebrew|in english)\b&quot;) or h(t,&#39;(טבלה|רשימה|בעברית|באנגלית|פורמט|סעיפים)&#39;) else 0,&#39;Say what the answer should look like: format, language, length.&#39;)
+ a(&#39;Success criteria / examples&#39;,15,15 if h(t,r&quot;\b(test|verify|done when|acceptance|criteria|example|e\.g\.|for instance|expected|success)\b&quot;) or h(t,&#39;(בדיקה|אימות|קריטריון|לדוגמה|צפוי)&#39;) else 0,&#39;Define &quot;done&quot; or give an example of good output.&#39;)
+ a(&#39;Specifics&#39;,10,(4 if h(t,r&quot;\d&quot;) else 0)+(3 if h(t,r&quot;[A-Z][a-z]+[A-Z]|_\w+|\(\)|\bv?\d+\.\d+&quot;,re.A) else 0)+(3 if h(t,r&quot;\&quot;[^\&quot;]+\&quot;|&#39;[^&#39;]+&#39;&quot;) else 0),&#39;Use names, numbers, versions and quoted literals instead of vague words.&#39;)
+ a(&#39;Structure&#39;,10,(6 if h(t,r&quot;\n\s*([-*]|\d+[.)])\s&quot;) else 0)+(2 if &#39;\n&#39; in t else 0)+(2 if h(t,r&quot;^#|\n#|:\s*\n|&lt;\w+&gt;&quot;) else 0),&#39;Break it up: bullets, numbered steps, or labelled sections.&#39;)
+ a(&#39;Length fit&#39;,5,0 if w&lt;4 else 2 if w&lt;12 else 5 if w&lt;=400 else 3,&#39;Too terse: add detail.&#39; if w&lt;12 else &#39;Trim anything that is not needed.&#39;)
+ s=max(1,min(100,sum(x[&#39;got&#39;] for x in c)));lab=&#39;excellent&#39; if s&gt;=80 else &#39;good&#39; if s&gt;=60 else &#39;fair&#39; if s&gt;=40 else &#39;weak&#39;
+ g=sorted(c,key=lambda x:x[&#39;got&#39;]-x[&#39;max&#39;])[0]
+ return {&#39;score&#39;:s,&#39;label&#39;:lab,&#39;checks&#39;:c,&#39;line&#39;:f&quot;Prompt score: {s}/100 ({lab}) - biggest gap: {g[&#39;name&#39;]}. {g[&#39;tip&#39;]}&quot;}
+```</textarea>
+  <textarea id="agentname" hidden>Prompt Score</textarea>
+  <textarea id="agentdesc" hidden>Scores every prompt 1-100 for prompt-engineering quality, names the biggest gap, and offers breakdown, tips, rewrite and history.</textarea>
+  <textarea id="admin-he" hidden>שלום, אשמח שתתקינו עבורי את סוכן Microsoft 365 Copilot המצורף (PromptScore-Microsoft365-Copilot.zip, ‏Prompt Score גרסה 0.6.0), או שתאפשרו לי להעלות אפליקציות מותאמות ב־Teams. זה סוכן הנחיות בלבד עם Code Interpreter: הוא נותן ציון לניסוח הבקשות ואינו ניגש לנתוני הארגון. תודה!</textarea>
+  <textarea id="admin-en" hidden>Hi, could you please install the attached Microsoft 365 Copilot agent (PromptScore-Microsoft365-Copilot.zip, Prompt Score version 0.6.0) for me, or allow me to upload custom apps in Teams? It is an instructions-only agent with Code Interpreter: it scores how requests are worded and does not access company data. Thanks!</textarea>
+</details>
+
+<p class="note" data-he>📄 רוצים מדריך מצויר מלא? פתחו את הקובץ <b dir="ltr">Install guide.pdf</b> בתיקייה הזו.</p>
+<p class="note" data-en>📄 Want the full illustrated guide? Open <b>Install guide.pdf</b> in this folder.</p>
+
+<footer>Prompt Score v0.6.0 · 2026-10-27</footer>
+</main>
+<script>
+(function () {
+  var body = document.body, langBtn = document.getElementById('lang');
+  function setLang(en) {
+    body.classList.toggle('en', en);
+    document.documentElement.lang = en ? 'en' : 'he';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    langBtn.textContent = en ? 'עברית' : 'English';
+    try { localStorage.setItem('ps-lang', en ? 'en' : 'he'); } catch (e) {}
+  }
+  langBtn.addEventListener('click', function () { setLang(!body.classList.contains('en')); });
+  try { if (localStorage.getItem('ps-lang') === 'en') setLang(true); } catch (e) {}
+
+  document.querySelectorAll('.choice').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.choice').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      document.querySelectorAll('.track').forEach(function (t) { t.classList.toggle('on', t.id === btn.dataset.track); });
+      document.getElementById(btn.dataset.track).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  function textFor(kind) {
+    if (kind !== 'admin') return document.getElementById(kind).value;
+    return document.getElementById(body.classList.contains('en') ? 'admin-en' : 'admin-he').value;
+  }
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove(); return ok;
+  }
+  function show(status, ok) {
+    var en = body.classList.contains('en');
+    status.className = 'status ' + (ok ? 'ok' : 'err');
+    status.textContent = ok
+      ? (en ? '✔ Copied! Go to the next step.' : '✔ הועתק! עברו לשלב הבא.')
+      : (en ? 'Copy did not work: the browser blocked access to the clipboard. Open "What exactly is copied?" below, click in the box, press Ctrl+A and then Ctrl+C.'
+            : 'ההעתקה לא הצליחה: הדפדפן חסם גישה ללוח. פתחו למטה את "מה בדיוק מועתק?", לחצו בתיבה, ואז Ctrl+A ו־Ctrl+C.');
+    if (!ok) document.getElementById('copied').open = true;
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = textFor(btn.dataset.copy), status = btn.parentNode.querySelector('.status');
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { show(status, true); }, function () { show(status, legacyCopy(text)); });
+      } else { show(status, legacyCopy(text)); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

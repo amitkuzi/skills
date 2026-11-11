@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "0.6.0",
+  "id": "5f0c2a8e-7b3d-4c1e-9a6f-2d8b4e1c7a35",
+  "developer": {
+    "name": "Amit Kuzi",
+    "websiteUrl": "https://github.com/amitkuzi/skills",
+    "privacyUrl": "https://github.com/amitkuzi/skills/tree/master/prompt-score",
+    "termsOfUseUrl": "https://github.com/amitkuzi/skills/blob/master/prompt-score/LICENSE"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "Prompt Score",
+    "full": "Prompt Score - prompt-engineering grader"
+  },
+  "description": {
+    "short": "Scores every prompt 1-100 for prompt-engineering quality.",
+    "full": "Prompt Score v0.6.0 (2026-10-27) grades each prompt from 1 to 100 on goal, context, constraints, output format, success criteria, specifics, structure and length, shows the biggest gap, and offers breakdown, tips, rewrite and history. A fast offline heuristic (Hebrew and English), not an LLM judgment."
+  },
+  "accentColor": "#E4632D",
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "promptScoreAgent",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  },
+  "permissions": [],
+  "validDomains": []
+}
