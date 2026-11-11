@@ -1,9 +1,11 @@
 <#
   Builds the Prompt Score agent for Microsoft Copilot (Windows).
     .\install.ps1            -> builds dist\prompt-score-copilot-<ver>.zip (Microsoft 365 Copilot agent package),
-                                dist\consumer-prompt.txt and dist\PromptScore-Copilot-Setup-<ver>.zip (the one file
+                                dist\consumer-prompt.txt (text-only setup prompt to paste into personal Copilot)
+                                dist\custom-instructions.txt (permanent: paste into Copilot Settings > Personalization > Custom instructions)
+                                and dist\PromptScore-Copilot-Setup-<ver>.zip (the one file
                                 to hand a non-technical user: START HERE.html, the agent package, the PDF guide)
-    .\install.ps1 -Consumer  -> also copies the consumer prompt to the clipboard and opens Copilot
+    .\install.ps1 -Consumer  -> also copies the permanent custom instructions to the clipboard and opens Copilot
     .\install.ps1 -NoOpen    -> build only, open nothing
   Version and release date come from ..\.claude-plugin\plugin.json (the one canonical source).
 #>
@@ -16,6 +18,7 @@ $dist   = Join-Path $here 'dist'
 $stage  = Join-Path $dist 'appPackage'
 $utf8   = New-Object System.Text.UTF8Encoding $false
 $maxInstructions = 8000   # declarative agent manifest v1.5 limit
+$maxCustom = 1500         # Copilot custom instructions: limit unpublished, 1,500 is the lowest reported figure
 
 function Read-Text($path) { [IO.File]::ReadAllText($path, $utf8) }
 function Write-Text($path, $text) { [IO.File]::WriteAllText($path, $text, $utf8) }
@@ -64,6 +67,20 @@ function New-Icon($path, $size, [switch]$Outline) {
   $g.Dispose(); $bmp.Save($path, [System.Drawing.Imaging.ImageFormat]::Png); $bmp.Dispose()
 }
 
+function New-CustomInstructions($release) {
+  # Short version for Copilot Settings > Personalization > Custom instructions: applies to every new chat
+  $text = (Expand-Template (Read-Text (Join-Path $here 'custom-instructions.template.md')) $release).Trim()
+  if ($text.Length -gt $maxCustom) {
+    Fail 'Building the custom instructions' "they are $($text.Length) characters, the safe limit is $maxCustom" 'shorten custom-instructions.template.md'
+  }
+  $text
+}
+
+function New-ConsumerPrompt($release) {
+  # Text-only setup prompt for personal Copilot: the same rules in plain words, no code
+  (Expand-Template (Read-Text (Join-Path $here 'install-prompt.template.md')) $release).Trim()
+}
+
 function Build-AgentPackage($release, $instructions) {
   Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
   New-Item -ItemType Directory -Force $stage | Out-Null
@@ -81,7 +98,7 @@ function Build-AgentPackage($release, $instructions) {
   $zip
 }
 
-function Build-EasySetup($release, $agentZip, $instructions) {
+function Build-EasySetup($release, $agentZip, $consumerPrompt, $customInstructions, $instructions) {
   # One zip for non-technical users: a start page with copy buttons, the agent package and the PDF guide
   $folderName = 'Prompt Score for Copilot'
   $root = Join-Path $dist 'setup'
@@ -94,7 +111,10 @@ function Build-EasySetup($release, $agentZip, $instructions) {
   if (-not (Test-Path $manual)) { Fail 'Building the setup zip' 'docs\install-manual.pdf is missing' 'run: node copilot\docs\build-manual.mjs' }
   Copy-Item $manual (Join-Path $folder 'Install guide.pdf')
   $page = Expand-Template (Read-Text (Join-Path $here 'docs\start-here.src.html')) $release
-  $page = $page.Replace('{{AGENTZIP}}', $agentName).Replace('{{PROMPT}}', [Net.WebUtility]::HtmlEncode($instructions))
+  $page = $page.Replace('{{AGENTZIP}}', $agentName).Replace('{{PROMPT}}', [Net.WebUtility]::HtmlEncode($consumerPrompt)).Replace('{{CUSTOM}}', [Net.WebUtility]::HtmlEncode($customInstructions)).Replace('{{AGENT}}', [Net.WebUtility]::HtmlEncode($instructions))
+  Write-Text (Join-Path $folder 'Copilot at work - agent instructions.txt') $instructions
+  Write-Text (Join-Path $folder 'Copilot permanent setup (Custom instructions).txt') $customInstructions
+  Write-Text (Join-Path $folder 'Copilot setup text.txt') $consumerPrompt
   Write-Text (Join-Path $folder 'START HERE.html') $page
   $setupZip = Join-Path $dist "PromptScore-Copilot-Setup-$($release.Version).zip"
   Remove-Item $setupZip -Force -ErrorAction SilentlyContinue
@@ -113,7 +133,7 @@ function Show-UploadSteps($zip) {
 
 function Start-ConsumerCopilot($promptFile) {
   Set-Clipboard -Value (Read-Text $promptFile)
-  Write-Host 'Consumer prompt copied to the clipboard. Paste it as the first message of a new Copilot chat.' -ForegroundColor Green
+  Write-Host 'Custom instructions copied. In Copilot: Settings > Personalization > Custom instructions > paste > Save, then open a new chat.' -ForegroundColor Green
   Start-Process 'https://copilot.microsoft.com/'
 }
 
@@ -122,10 +142,14 @@ $release = Get-Release
 $instructions = New-Instructions $release
 $zip = Build-AgentPackage $release $instructions
 $promptFile = Join-Path $dist 'consumer-prompt.txt'
-Write-Text $promptFile $instructions
-$setupZip = Build-EasySetup $release $zip $instructions
-Write-Host "Prompt Score v$($release.Version) ($($release.Date)) - instructions $($instructions.Length)/$maxInstructions chars"
+$consumerPrompt = New-ConsumerPrompt $release
+Write-Text $promptFile $consumerPrompt
+$customInstructions = New-CustomInstructions $release
+Write-Text (Join-Path $dist 'custom-instructions.txt') $customInstructions
+$setupZip = Build-EasySetup $release $zip $consumerPrompt $customInstructions $instructions
+Write-Text (Join-Path $dist 'agent-instructions.txt') $instructions
+Write-Host "Prompt Score v$($release.Version) ($($release.Date)) - agent instructions $($instructions.Length)/$maxInstructions chars, setup prompt $($consumerPrompt.Length) chars, custom instructions $($customInstructions.Length)/$maxCustom chars"
 Write-Host "Setup for non-technical users (send this one file): $setupZip" -ForegroundColor Green
 Show-UploadSteps $zip
-if ($Consumer) { Start-ConsumerCopilot $promptFile }
+if ($Consumer) { Start-ConsumerCopilot (Join-Path $dist 'custom-instructions.txt') }
 if (-not $NoOpen) { Invoke-Item $dist }

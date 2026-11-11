@@ -1,6 +1,6 @@
 {
   "name": "prompt-score",
-  "version": "0.3.0",
+  "version": "0.6.0",
   "releaseDate": "2026-10-27",
   "description": "Scores every prompt 1-100 for prompt-engineering quality, with an actions menu above the prompt.",
   "types": "./types/index.d.ts"

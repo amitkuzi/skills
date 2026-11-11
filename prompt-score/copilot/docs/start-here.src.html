@@ -42,6 +42,11 @@ kbd { display: inline-block; border: 2px solid var(--fg2); border-bottom-width: 
 .done { background: rgba(47,125,79,.10); border: 2px solid var(--ok); border-radius: 16px; padding: 14px 18px; font-size: 17px; }
 .example { background: var(--raised); border: 3px solid var(--ember); border-radius: 14px; padding: 10px 14px; direction: ltr; text-align: left; font-size: 16px; margin: 8px 0; }
 details { background: var(--raised); border-radius: 16px; padding: 14px 20px; margin-top: 18px; }
+.plan-b { margin: 0 0 14px; }
+.plan-b .big { margin-top: 4px; }
+.field { margin: 10px 0; }
+.field .status { min-height: 0; margin-top: 4px; }
+.big.small { font-size: 16px; padding: 8px 16px; margin-inline-start: 8px; }
 summary { cursor: pointer; font-weight: 700; }
 textarea { width: 100%; min-height: 180px; direction: ltr; font: 13px/1.4 Consolas, monospace; border: 1px solid var(--fg2); border-radius: 10px; padding: 10px; margin-top: 10px; }
 footer { color: var(--fg2); font-size: 14px; margin-top: 26px; text-align: center; }
@@ -77,66 +82,98 @@ body:not(.en) [data-en], body.en [data-he] { display: none !important; }
 <section class="track" id="home">
   <div class="step"><div class="num">1</div><div>
     <h3 data-he>לחצו "העתקה"</h3><h3 data-en>Click "Copy"</h3>
-    <button class="big" type="button" data-copy="prompt"><span data-he>📋 העתקה</span><span data-en>📋 Copy</span></button>
+    <button class="big" type="button" data-copy="custom"><span data-he>📋 העתקה</span><span data-en>📋 Copy</span></button>
     <div class="status" role="status" aria-live="polite"></div>
   </div></div>
   <div class="step"><div class="num">2</div><div>
-    <h3 data-he>פתחו את Copilot</h3><h3 data-en>Open Copilot</h3>
+    <h3 data-he>פתחו את ההגדרות של Copilot</h3><h3 data-en>Open Copilot settings</h3>
     <a class="big alt" href="https://copilot.microsoft.com/" target="_blank" rel="noopener"><span data-he>פתיחת Copilot ↗</span><span data-en>Open Copilot ↗</span></a>
-    <p style="margin-top:10px" data-he>או פתחו את אפליקציית Copilot במחשב והתחילו צ'אט חדש.</p>
-    <p style="margin-top:10px" data-en>Or open the Copilot app on your computer and start a new chat.</p>
+    <p style="margin-top:10px" data-he>היכנסו עם החשבון שלכם, לחצו על תמונת הפרופיל או על השם שלכם, ואז:</p>
+    <p style="margin-top:10px" data-en>Sign in, click your profile picture or name, then:</p>
+    <div class="path"><span>Settings</span><i>›</i><span>Personalization</span><i>›</i><span>Custom instructions</span></div>
+    <p class="note" data-he>השמות יכולים להיות מעט שונים, למשל "הגדרות" ‹ "התאמה אישית" ‹ "הוראות מותאמות אישית". ודאו שההתאמה האישית מופעלת (On).</p>
+    <p class="note" data-en>The names can differ slightly. Make sure Personalization is turned On.</p>
   </div></div>
   <div class="step"><div class="num">3</div><div>
-    <h3 data-he>הדביקו ושלחו</h3><h3 data-en>Paste and send</h3>
-    <p data-he>לחצו בתיבת הכתיבה, ואז <kbd>Ctrl</kbd> + <kbd>V</kbd> ואחר כך <kbd>Enter</kbd>.</p>
-    <p data-en>Click in the message box, then press <kbd>Ctrl</kbd> + <kbd>V</kbd> and then <kbd>Enter</kbd>.</p>
+    <h3 data-he>הדביקו ושמרו</h3><h3 data-en>Paste and save</h3>
+    <p data-he>לחצו בתיבה של ההוראות, <kbd>Ctrl</kbd> + <kbd>V</kbd>, ואז <b>Save / שמירה</b>.</p>
+    <p data-en>Click in the instructions box, press <kbd>Ctrl</kbd> + <kbd>V</kbd>, then <b>Save</b>.</p>
   </div></div>
   <div class="step"><div class="num">4</div><div>
-    <h3 data-he>זהו! כתבו כרגיל</h3><h3 data-en>Done! Write as usual</h3>
-    <p data-he>מעכשיו, בצ'אט הזה, כל תשובה תתחיל בציון. נסו לכתוב: <b>fix it</b></p>
-    <p data-en>From now on, in this chat, every answer starts with a score. Try writing: <b>fix it</b></p>
+    <h3 data-he>בדיקה בצ'אט חדש</h3><h3 data-en>Check in a new chat</h3>
+    <p data-he>פתחו צ'אט <b>חדש</b> וכתבו: <b>fix it</b>. התשובה צריכה להתחיל בציון:</p>
+    <p data-en>Open a <b>new</b> chat and write: <b>fix it</b>. The answer should start with a score:</p>
     <div class="example"><b>Prompt score: 10/100 (weak)</b> - biggest gap: Context…</div>
-    <p class="note" data-he>⚠ זה עובד רק בצ'אט שבו הדבקתם. בצ'אט חדש — חזרו לדף הזה ובצעו שוב שלבים 1–3.</p>
-    <p class="note" data-en>⚠ This works only in the chat where you pasted it. For a new chat, come back to this page and repeat steps 1–3.</p>
+    <p class="done" data-he>✔ זהו — מעכשיו כל צ'אט חדש מקבל ציון, בלי להדביק שוב.</p>
+    <p class="note" data-he>⚠ חשבון עבודה בלי "Custom instructions"? חזרו למעלה ובחרו <b>Copilot בעבודה</b>.</p>
+    <p class="done" data-en>✔ Done — from now on every new chat is scored, no pasting again.</p>
+    <p class="note" data-en>⚠ Work account without "Custom instructions"? Go back up and pick <b>Copilot at work</b>.</p>
   </div></div>
+  <details class="plan-b">
+    <summary><span data-he>אין "Custom instructions" או שהטקסט לא נכנס? (גיבוי)</span><span data-en>No "Custom instructions", or the text does not fit? (backup)</span></summary>
+    <p data-he>אפשר להפעיל לצ'אט אחד בכל פעם: העתיקו, הדביקו כהודעה הראשונה בצ'אט חדש ושלחו. Copilot יענה <b dir="ltr">✅ Prompt Score is on</b>. בכל צ'אט חדש חוזרים על זה.</p>
+    <p data-en>You can turn it on for one chat at a time: copy, paste it as the first message of a new chat and send. Copilot replies ✅ Prompt Score is on. Repeat in every new chat.</p>
+    <button class="big alt" type="button" data-copy="prompt"><span data-he>📋 העתקה לצ'אט אחד</span><span data-en>📋 Copy for one chat</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </details>
 </section>
 
 <section class="track" id="work">
+  <p class="done" data-he>✔ בלי צוות IT: בונים את הסוכן לבד, פעם אחת, ב־Copilot. אחר כך כל צ'אט עם הסוכן <b>Prompt Score</b> מקבל ציון.</p>
+  <p class="done" data-en>✔ No IT needed: build the agent yourself, once, in Copilot. Then every chat with the <b>Prompt Score</b> agent is scored.</p>
   <div class="step"><div class="num">1</div><div>
-    <h3 data-he>פתחו את Teams והגיעו להעלאת אפליקציה</h3><h3 data-en>Open Teams and go to app upload</h3>
-    <div class="path"><span>Apps</span><i>›</i><span>Manage your apps</span><i>›</i><span>Upload an app</span><i>›</i><span>Upload a custom app</span></div>
-    <p data-he>בחרו את הקובץ <b dir="ltr">{{AGENTZIP}}</b> מהתיקייה הזו ולחצו <b>Add</b>.</p>
-    <p data-en>Pick the file <b>{{AGENTZIP}}</b> from this folder and click <b>Add</b>.</p>
-    <p class="note" data-he>⚠ אל תפתחו (unzip) את הקובץ הזה — מעלים אותו כמו שהוא.</p>
-    <p class="note" data-en>⚠ Do not unzip this file — upload it as it is.</p>
+    <h3 data-he>פותחים "סוכן חדש"</h3><h3 data-en>Open "New agent"</h3>
+    <a class="big alt" href="https://m365.cloud.microsoft/chat" target="_blank" rel="noopener"><span data-he>פתיחת Microsoft 365 Copilot ↗</span><span data-en>Open Microsoft 365 Copilot ↗</span></a>
+    <p style="margin-top:10px" data-he>היכנסו עם חשבון העבודה (או פתחו את אפליקציית Microsoft 365 Copilot), ובצד:</p>
+    <p style="margin-top:10px" data-en>Sign in with the work account (or open the Microsoft 365 Copilot app), and on the side:</p>
+    <div class="path"><span>Agents</span><i>›</i><span>New agent</span><i>›</i><span>Skip to configure</span></div>
+    <p class="note" data-he>⚠ אם Copilot מתחיל לשאול "מה הסוכן צריך לעשות?" — חפשו את הכפתור <b dir="ltr">Skip to configure</b> או את הלשונית <b dir="ltr">Configure</b>.</p>
+    <p class="note" data-en>⚠ If Copilot starts asking "what should the agent do?", look for the <b>Skip to configure</b> button or the <b>Configure</b> tab.</p>
   </div></div>
   <div class="step"><div class="num">2</div><div>
-    <h3 data-he>אין לכם "Upload a custom app"?</h3><h3 data-en>No "Upload a custom app"?</h3>
-    <p data-he>זה אומר שרק צוות ה־IT יכול להתקין. העתיקו את ההודעה ושלחו להם יחד עם הקובץ.</p>
-    <p data-en>That means only your IT team can install it. Copy this message and send it to them with the file.</p>
-    <button class="big alt" type="button" data-copy="admin"><span data-he>📋 העתקת הודעה ל־IT</span><span data-en>📋 Copy message for IT</span></button>
-    <div class="status" role="status" aria-live="polite"></div>
+    <h3 data-he>ממלאים 3 שדות — העתקה והדבקה</h3><h3 data-en>Fill 3 fields — copy and paste</h3>
+    <p data-he>לכל שדה: לוחצים "העתקה", לוחצים בשדה ב־Copilot, <kbd>Ctrl</kbd> + <kbd>V</kbd>.</p>
+    <p data-en>For each field: click "Copy", click in the field in Copilot, <kbd>Ctrl</kbd> + <kbd>V</kbd>.</p>
+    <div class="field"><b dir="ltr">Name</b> <button class="big alt small" type="button" data-copy="agentname"><span data-he>📋 העתקת שם</span><span data-en>📋 Copy name</span></button>
+    <div class="status" role="status" aria-live="polite"></div></div>
+    <div class="field"><b dir="ltr">Description</b> <button class="big alt small" type="button" data-copy="agentdesc"><span data-he>📋 העתקת תיאור</span><span data-en>📋 Copy description</span></button>
+    <div class="status" role="status" aria-live="polite"></div></div>
+    <div class="field"><b dir="ltr">Instructions</b> <button class="big small" type="button" data-copy="agent"><span data-he>📋 העתקת הוראות</span><span data-en>📋 Copy instructions</span></button>
+    <div class="status" role="status" aria-live="polite"></div></div>
   </div></div>
   <div class="step"><div class="num">3</div><div>
-    <h3 data-he>פתחו את הסוכן</h3><h3 data-en>Open the agent</h3>
-    <p data-he>באפליקציית Microsoft 365 Copilot (או ב־Copilot Chat) בחרו בצד <b>Agents</b> ואז <b>Prompt Score</b>. לפעמים לוקח כמה דקות עד שהוא מופיע.</p>
-    <p data-en>In the Microsoft 365 Copilot app (or Copilot Chat), pick <b>Agents</b> on the side, then <b>Prompt Score</b>. It can take a few minutes to appear.</p>
+    <h3 data-he>מפעילים את המתג ויוצרים</h3><h3 data-en>Turn on the switch and create</h3>
+    <p data-he>תחת <b dir="ltr">Capabilities</b> הדליקו את <b dir="ltr">Create documents, charts, and code</b> (זה נותן ציון מדויק). אחר כך לחצו <b dir="ltr">Create</b>.</p>
+    <p data-en>Under <b>Capabilities</b> turn on <b>Create documents, charts, and code</b> (this makes the score exact). Then click <b>Create</b>.</p>
   </div></div>
   <div class="step"><div class="num">4</div><div>
     <h3 data-he>בדיקה</h3><h3 data-en>Check</h3>
-    <p data-he>כתבו <b>fix it</b>. התשובה צריכה להתחיל כך:</p>
-    <p data-en>Write <b>fix it</b>. The answer should start like this:</p>
+    <p data-he>בצד, תחת <b dir="ltr">Agents</b>, בחרו <b>Prompt Score</b> וכתבו <b>fix it</b>. התשובה צריכה להתחיל כך:</p>
+    <p data-en>On the side, under <b>Agents</b>, pick <b>Prompt Score</b> and write <b>fix it</b>. The answer should start like this:</p>
     <div class="example"><b>Prompt score: 10/100 (weak)</b> - biggest gap: Context…</div>
-    <p class="done" data-he>✔ מעכשיו כל צ'אט עם Prompt Score מקבל ציון — אין צורך להדביק שוב.</p>
-    <p class="done" data-en>✔ From now on every chat with Prompt Score is scored — no pasting needed.</p>
+    <p class="done" data-he>✔ קבוע: בכל פעם שבוחרים בסוכן Prompt Score, כל הודעה מקבלת ציון. צ'אט רגיל עם Copilot (בלי לבחור בסוכן) לא מקבל ציון.</p>
+    <p class="done" data-en>✔ Permanent: whenever you pick the Prompt Score agent, every message is scored. A regular Copilot chat (without picking the agent) is not scored.</p>
+    <p class="note" data-he>⚠ מופיע <b dir="ltr">(estimated)</b>? המתג משלב 3 כבוי או לא זמין בארגון — הציון מקורב, אבל עובד.</p>
+    <p class="note" data-en>⚠ Seeing <b>(estimated)</b>? The switch from step 3 is off or not available in your organization — the score is approximate, but it works.</p>
   </div></div>
+  <details class="plan-b">
+    <summary><span data-he>אין "New agent"? (חסום בארגון)</span><span data-en>No "New agent"? (blocked by your organization)</span></summary>
+    <p data-he>אפשר לבקש מצוות ה־IT להתקין את הקובץ המוכן <b dir="ltr">{{AGENTZIP}}</b> שבתיקייה הזו (לא לפתוח אותו). העתיקו את ההודעה ושלחו להם יחד עם הקובץ. אם יש לכם הרשאה בעצמכם: <span dir="ltr">Teams › Apps › Manage your apps › Upload an app › Upload a custom app</span>.</p>
+    <p data-en>Ask your IT team to install the ready file <b>{{AGENTZIP}}</b> from this folder (do not unzip it). Copy this message and send it to them with the file. If you have permission yourself: Teams › Apps › Manage your apps › Upload an app › Upload a custom app.</p>
+    <button class="big alt small" type="button" data-copy="admin"><span data-he>📋 העתקת הודעה ל־IT</span><span data-en>📋 Copy message for IT</span></button>
+    <div class="status" role="status" aria-live="polite"></div>
+  </details>
 </section>
 
-<details>
+<details id="copied">
   <summary><span data-he>מה בדיוק מועתק? (לסקרנים)</span><span data-en>What exactly is copied? (for the curious)</span></summary>
-  <p data-he>ההנחיה ל־Copilot. אם הכפתור לא מעתיק: לחצו בתיבה, <kbd>Ctrl</kbd>+<kbd>A</kbd> ואז <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
-  <p data-en>The instruction for Copilot. If the button does not copy: click in the box, then <kbd>Ctrl</kbd>+<kbd>A</kbd> and <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <p data-he>התיבות: הטקסט הקבוע ל־Copilot הפרטי, הטקסט לצ'אט אחד, וההוראות לסוכן בעבודה. אם כפתור לא מעתיק: לחצו בתיבה, <kbd>Ctrl</kbd>+<kbd>A</kbd> ואז <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <p data-en>Boxes: the permanent text for personal Copilot, the one-chat text, and the instructions for the work agent. If a button does not copy: click in the box, then <kbd>Ctrl</kbd>+<kbd>A</kbd> and <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <textarea id="custom" readonly>{{CUSTOM}}</textarea>
   <textarea id="prompt" readonly>{{PROMPT}}</textarea>
+  <textarea id="agent" readonly>{{AGENT}}</textarea>
+  <textarea id="agentname" hidden>Prompt Score</textarea>
+  <textarea id="agentdesc" hidden>Scores every prompt 1-100 for prompt-engineering quality, names the biggest gap, and offers breakdown, tips, rewrite and history.</textarea>
   <textarea id="admin-he" hidden>שלום, אשמח שתתקינו עבורי את סוכן Microsoft 365 Copilot המצורף ({{AGENTZIP}}, ‏Prompt Score גרסה {{VERSION}}), או שתאפשרו לי להעלות אפליקציות מותאמות ב־Teams. זה סוכן הנחיות בלבד עם Code Interpreter: הוא נותן ציון לניסוח הבקשות ואינו ניגש לנתוני הארגון. תודה!</textarea>
   <textarea id="admin-en" hidden>Hi, could you please install the attached Microsoft 365 Copilot agent ({{AGENTZIP}}, Prompt Score version {{VERSION}}) for me, or allow me to upload custom apps in Teams? It is an instructions-only agent with Code Interpreter: it scores how requests are worded and does not access company data. Thanks!</textarea>
 </details>
@@ -168,7 +205,7 @@ body:not(.en) [data-en], body.en [data-he] { display: none !important; }
   });
 
   function textFor(kind) {
-    if (kind === 'prompt') return document.getElementById('prompt').value;
+    if (kind !== 'admin') return document.getElementById(kind).value;
     return document.getElementById(body.classList.contains('en') ? 'admin-en' : 'admin-he').value;
   }
   function legacyCopy(text) {
@@ -185,7 +222,7 @@ body:not(.en) [data-en], body.en [data-he] { display: none !important; }
       ? (en ? '✔ Copied! Go to the next step.' : '✔ הועתק! עברו לשלב הבא.')
       : (en ? 'Copy did not work: the browser blocked access to the clipboard. Open "What exactly is copied?" below, click in the box, press Ctrl+A and then Ctrl+C.'
             : 'ההעתקה לא הצליחה: הדפדפן חסם גישה ללוח. פתחו למטה את "מה בדיוק מועתק?", לחצו בתיבה, ואז Ctrl+A ו־Ctrl+C.');
-    if (!ok) document.querySelector('details').open = true;
+    if (!ok) document.getElementById('copied').open = true;
   }
   document.querySelectorAll('[data-copy]').forEach(function (btn) {
     btn.addEventListener('click', function () {

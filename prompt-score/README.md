@@ -61,10 +61,15 @@ embed `copilot/score.py` (same rules as `hooks/score.ts`) and run it with Code I
 powershell -ExecutionPolicy Bypass -File D:/Development/Skills/prompt-score/copilot/install.ps1
 ```
 
+Work account, no IT: in Microsoft 365 Copilot, Agents > New agent > Skip to configure, paste
+`agent-instructions.txt` into Instructions and turn on "Create documents, charts, and code".
 Builds `copilot/dist/prompt-score-copilot-<version>.zip` (Microsoft 365 Copilot agent package:
 upload it in Teams > Apps > Manage your apps > Upload a custom app) and `consumer-prompt.txt`
-(for the personal Copilot app: `-Consumer` copies it to the clipboard and opens Copilot; paste it
-as the first message of a chat). Without Code Interpreter the score line is marked `(estimated)`.
+(a text-only setup prompt built from `copilot/install-prompt.template.md`, for the personal Copilot app: `-Consumer` copies it to the clipboard and opens Copilot; paste it
+as the first message of a chat; Copilot applies the rules in plain words, so its score can differ by a few points).
+In the agent, without Code Interpreter the score line is marked `(estimated)`.
+To make it permanent in personal Copilot, paste `custom-instructions.txt` into Settings > Personalization >
+Custom instructions (`-Consumer` copies it); every new chat is then scored.
 For a non-technical user, send only `PromptScore-Copilot-Setup-<version>.zip`: they unzip it and
 double-click `START HERE.html`, which walks them through with copy buttons (Hebrew/English).
 Step-by-step visual guide (Hebrew + English): `copilot/docs/install-manual.html` / `.pdf`,
@@ -75,6 +80,9 @@ rebuilt with `node copilot/docs/build-manual.mjs`.
 `.claude-plugin/plugin.json` holds the version and `releaseDate`; the Copilot package, agent
 `about` reply and manual read them from there.
 
+- 0.6.0 (2026-10-27): work accounts without Custom instructions: build the agent yourself in Agent Builder (Agents > New agent > Skip to configure); START HERE.html gives copy buttons for Name, Description and Instructions (`agent-instructions.txt`); Teams upload becomes the fallback.
+- 0.5.0 (2026-10-27): permanent setup for personal Copilot: `custom-instructions.txt` (1,366 chars, built from `copilot/custom-instructions.template.md`) goes into Settings > Personalization > Custom instructions and applies to every new chat; the one-chat prompt stays as a backup.
+- 0.4.0 (2026-10-27): text-only setup prompt for personal Copilot (plain-language rules, confirmation reply); used by START HERE.html and shipped as `Copilot setup text.txt`.
 - 0.3.0 (2026-10-27): one-file setup for non-technical users (`dist/PromptScore-Copilot-Setup-<version>.zip`: START HERE.html with copy buttons, agent package, PDF guide).
 - 0.2.0 (2026-10-27): Microsoft Copilot port (`copilot/`): agent package, consumer prompt, installer, visual manual.
 
